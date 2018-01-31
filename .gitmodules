@@ -1,0 +1,3 @@
+[submodule "explgbk"]
+	path = explgbk
+	url = git@github.com:slaclab/explgbk.git
