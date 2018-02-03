@@ -9,10 +9,17 @@ Clone this repo and submodules:
     
 # Build and Run
 
+Build the image locally
+
     cd explgbk-docker
     docker build -t slaclab/explgbk-docker .
     docker run -p 8000:8000 slaclab/explgbk-docker
-    
+
+Run docker compose to bring up entire environment
+
+    docker-compose -f docker-compose.yaml up
+
+
     
 # Develop
 
