@@ -1,0 +1,37 @@
+version: '2'
+services:
+
+  mongodb:
+    image: slaclab/mongo:3.7
+    environment:
+      - MONGO_INITDB_DATABASE=site
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=somepassword
+    volumes:
+      - ./data/mongodb01:/data
+      - ./mongodb-init.d:/docker-entrypoint-initdb.d
+    ports:
+      - 27017:27017
+    # command: mongod --smallfiles --logpath=/dev/null # --quiet
+
+  explgbk:
+    image: slaclab/explgbk-docker:latest
+    environment:
+      - NODE_ENV=development
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
+      - MONGODB_ADMIN_USERNAME=writer
+      - MONGODB_ADMIN_PASSWORD=somepassword
+      - MONGODB_USERNAME=writer
+      - MONGODB_PASSWORD=somepassword
+      - ROLES_DATABASE_HOST=mongodb
+      - ROLES_DATABASE_USER=reader
+      - ROLES_DATABASE_PASSWORD=somepassword
+      - SKIP_KAFKA_CONNECTION=1
+    # volumes:
+    #     - .:/var/www:rw
+    #     - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    ports:
+      - 8000:8000
+    depends_on:
+      - mongodb
