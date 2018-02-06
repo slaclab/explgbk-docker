@@ -4,6 +4,7 @@ let error = false
 
 let res = [
 
+  db.roles.createIndex( {app: 1, name: 1} ),
   db.roles.insertMany([
     {
     	app: "LogBook",
