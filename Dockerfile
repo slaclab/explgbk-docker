@@ -11,8 +11,6 @@ RUN apk add --no-cache bash git nginx uwsgi uwsgi-python python3 \
     && pip3 install --upgrade pip gunicorn \
     && adduser -D -h $APP_DIR $GUNICORN_USER
     
-# COPY nginx.conf /etc/nginx/nginx.conf
-# COPY app.ini /app.ini
 COPY entrypoint.sh /entrypoint.sh
 
 WORKDIR ${APP_DIR}
@@ -22,6 +20,9 @@ ENV GUNICORN_CALLABLE=app
 
 RUN apk add --no-cache gcc libffi-dev python3-dev musl-dev openssl-dev
 RUN pip3 install -r ${APP_DIR}/requirements.txt
+
+RUN apk add --no-cache nodejs
+RUN npm install --global jquery bootstrap@3.3.7 eonasdan-bootstrap-datetimepicker lodash moment mustache socket.io socket.io-client jquery.noty.packaged.js
 
 RUN rm -r /root/.cache
 
