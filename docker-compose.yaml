@@ -2,15 +2,16 @@ version: '2'
 services:
 
   mongodb:
-    # image: slaclab/mongo:3.7
-    image: yee379/mongo:3.7
+    image: slaclab/mongo:3.7
+    # image: mongo:3.7
     environment:
       - MONGO_INITDB_DATABASE=site
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=somepassword
-      - dbPath=/data/db2
     volumes:
-      - ./data/mongodb01/db:/data/db
+      # - ./data/mongodb01/configdb:/data/configdb
+      # - ./data/mongodb01/db:/data/db
+      - ./data/mongodb01:/data
       - ./mongodb-init.d:/docker-entrypoint-initdb.d
     ports:
       - 27017:27017
