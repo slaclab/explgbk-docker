@@ -18,6 +18,8 @@ GG_PRNT_DIR=`dirname $G_PRNT_DIR`;
 GGG_PRNT_DIR=`dirname $GG_PRNT_DIR`;
 EXTERNAL_CONFIG_FILE="${GGG_PRNT_DIR}/appdata/explgbk_config/explgbk_config.sh"
 
+[ -z "$CONDA_PREFIX" ] && export CONDA_PREFIX="/usr"
+
 
 if [[ -f "${EXTERNAL_CONFIG_FILE}" ]]
 then
