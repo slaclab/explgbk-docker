@@ -17,18 +17,51 @@ services:
       - 27017:27017
     # command: mongod --smallfiles --logpath=/dev/null # --quiet
 
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  
+  kafka:
+    image: wurstmeister/kafka:latest
+    ports:
+      - "9094:9094"
+        # published: 9094
+        # protocol: tcp
+        # mode: host
+    environment:
+      HOSTNAME_COMMAND: "docker info | grep ^Name: | cut -d' ' -f 2"      
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_ADVERTISED_PROTOCOL_NAME: OUTSIDE
+      KAFKA_ADVERTISED_PORT: 9094
+      KAFKA_PROTOCOL_NAME: INSIDE
+      KAFKA_PORT: 9092
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - zookeeper
+
   auth:
     image: slaclab/explgbk-auth
     environment:
       ###
       # fake a user
       ###
-      - FAKE_AUTH=1
-      - FAKE_AUTH_USER=ytl
+      # - FAKE_AUTH=1
+      # - FAKE_AUTH_USER=ytl
+      ###
+      # server
+      ###
+      - SERVER_NAME=cryoem-logbook.slac.stanford.edu
+      - SERVER_ADMIN=ytl@slac.stanford.edu
       ###
       # the dns name to forward/proxy traffic to/from
       ###
       - PROXY_HOST=explgbk
+      - HTTPS_REDIRECT=https://cryoem-logbook.slac.stanford.edu/
+      - REQUIRE_VALID_USER=1
+      - USE_WEBAUTH=1
       ###
       # uncomment the following if you want to use some dummy certs
       ###
@@ -59,7 +92,7 @@ services:
       - ROLES_DATABASE_HOST=mongodb
       - ROLES_DATABASE_USER=reader
       - ROLES_DATABASE_PASSWORD=somepassword
-      - SKIP_KAFKA_CONNECTION=1
+      - KAFKA_BOOTSTRAP_SERVER=kafka:9092
     # volumes:
     #     - .:/var/www:rw
     #     - /tmp/.X11-unix:/tmp/.X11-unix:rw
@@ -68,5 +101,6 @@ services:
     depends_on:
       - mongodb
       - auth
+      - kafka
       
   
