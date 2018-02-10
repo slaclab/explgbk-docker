@@ -39,6 +39,10 @@ export SERVER_IP_PORT="0.0.0.0:$GUNICORN_PORT"
 
 # The exec assumes you are calling this from supervisord. If you call this from the command line; your bash shell is proabably gone and you need to log in.
 cd $APP_DIR
+
+# sleep to faciliate waiting for kafka
+sleep 15
+
 exec gunicorn $GUNICORN_MODULE:$GUNICORN_CALLABLE \
     -b ${SERVER_IP_PORT} --worker-class eventlet --reload \
     --log-level=DEBUG --env DEBUG=TRUE --capture-output --enable-stdio-inheritance \
