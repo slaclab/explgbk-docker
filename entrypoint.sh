@@ -41,7 +41,7 @@ export SERVER_IP_PORT="0.0.0.0:$GUNICORN_PORT"
 cd $APP_DIR
 
 # sleep to faciliate waiting for kafka
-sleep 15
+sleep 10
 
 exec gunicorn $GUNICORN_MODULE:$GUNICORN_CALLABLE \
     -b ${SERVER_IP_PORT} --worker-class eventlet --reload \
