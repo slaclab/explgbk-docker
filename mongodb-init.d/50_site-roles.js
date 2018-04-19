@@ -19,7 +19,9 @@ let res = [
     	players: [
     		"uid:mshankar",
     		"uid:wilko",
-        "uid:ytl"
+        	"uid:ytl",
+        	"uid:bushnell",
+        	"uid:wah"
     	]
     },
     {
@@ -31,10 +33,12 @@ let res = [
     		"read"
     	],
     	players: [
-    		"ps-pcds",
-        "uid:mshankar",
+    		//"ps-pcds",
+        	"uid:mshankar",
     		"uid:wilko",
-        "uid:ytl"
+        	"uid:ytl",
+        	"uid:bushnell",
+		"uid:wah"
     	]
     },
     {
@@ -44,12 +48,14 @@ let res = [
     		"read"
     	],
     	players: [
-    		"ps-sci",
-        "ps-data",
-    		"ps-mgt",
-        "uid:mshankar",
+    		//"ps-sci",
+        	"cryoem-data",
+    		"cryoem-mgt",
+        	"uid:mshankar",
     		"uid:wilko",
-        "uid:ytl"    
+        	"uid:ytl",
+        	"uid:bushnell",
+                "uid:wah"
     	]
     }
   ])
