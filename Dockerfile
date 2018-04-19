@@ -18,11 +18,14 @@ COPY explgbk/ ${APP_DIR}/
 ENV GUNICORN_MODULE=start
 ENV GUNICORN_CALLABLE=app
 
-RUN apk add --no-cache gcc libffi-dev python3-dev musl-dev openssl-dev
+RUN apk add --no-cache gcc libffi-dev python3-dev musl-dev openssl-dev curl-dev
 RUN pip3 install -r ${APP_DIR}/requirements.txt
 
 RUN apk add --no-cache nodejs
-RUN npm install --global jquery bootstrap@3.3.7 eonasdan-bootstrap-datetimepicker lodash moment mustache socket.io socket.io-client jquery.noty.packaged.js
+RUN npm install --global jquery bootstrap@3.3.7 eonasdan-bootstrap-datetimepicker lodash moment mustache socket.io socket.io-client jquery.noty.packaged.js font-awesome 
+#RUN npm install --global @mapbox/mapbox-gl-style-spec @mapbox/mapbox-gl-supported plotly.js
+RUN apk add --no-cache curl
+RUN mkdir -p /usr/lib/node_modules/plotly.js/dist &&  curl -L 'https://cdn.plot.ly/plotly-latest.min.js' > /usr/lib/node_modules/plotly.js/dist/plotly.min.js
 
 RUN rm -r /root/.cache
 
