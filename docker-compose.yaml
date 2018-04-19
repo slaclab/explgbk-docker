@@ -11,20 +11,23 @@ services:
     volumes:
       - ../data/mongodb01:/data
       - ./mongodb-init.d:/docker-entrypoint-initdb.d
-    ports:
-      - 27017:27017
+    # ports:
+    #   - 27017:27017
     # command: mongod --smallfiles --logpath=/dev/null # --quiet
 
   zookeeper:
     image: wurstmeister/zookeeper
-    volumes:
-      - ../data/zookeeper01/data:/opt/zookeeper-3.4.9/data
+    ###
+    # uncomment this for production
+    ###
+    # volumes:
+    #   - ../data/zookeeper01/data:/opt/zookeeper-3.4.9/data
 
   kafka:
     image: wurstmeister/kafka:latest
-    ports:
-      - "9094:9094"
-      - "9092:9092"
+    # ports:
+    #   - "9094:9094"
+      # - "9092:9092"
     environment:
       HOSTNAME_COMMAND: "docker info | grep ^Name: | cut -d' ' -f 2"      
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -59,8 +62,13 @@ services:
       ###
       # fake a user
       ###
-      # - FAKE_AUTH=1
-      # - FAKE_AUTH_USER=ytl
+      - FAKE_AUTH=1
+      - FAKE_AUTH_USER=ytl
+      ###
+      # or use real webauth
+      ###
+      # - REQUIRE_VALID_USER=1
+      # - USE_WEBAUTH=1
       ###
       # server
       ###
@@ -71,13 +79,10 @@ services:
       ###
       - PROXY_HOST=explgbk
       - HTTPS_REDIRECT=https://cryoem-logbook.slac.stanford.edu/
-      - REQUIRE_VALID_USER=1
-      - USE_WEBAUTH=1
       ###
       # uncomment the following if you want to use some dummy certs
       ###
       # - GENERATE_DUMMY_CERTS=yes
-
     ###
     # use this bind mount if you have your own certs that you want to use
     ###
@@ -85,6 +90,11 @@ services:
       - ${HOME}/certs/cryoem-logbook.crt:/etc/httpd/certs/cert.crt
       - ${HOME}/certs/cryoem-logbook.key:/etc/httpd/certs/cert.key
       - ${HOME}/certs/keytab_webauth.cryoem-logbook:/etc/httpd/certs/keytab_webauth
+      # for integrations
+      - ${HOME}/certs/backend.htpasswd:/etc/httpd/certs/backend.htpasswd
+      # for previews
+      - ${HOME}/previews:/var/www/html/previews
+
     ports:
       - 443:443
       - 80:80
@@ -93,6 +103,8 @@ services:
   explgbk:
     image: slaclab/explgbk-docker:latest
     environment:
+      - LOGBOOK_SITE=CryoEM
+      - URAWI_EXPERIMENT_LOOKUP_URL=https://userportal.slac.stanford.edu/apps/urawi/ws/cryo_btsr_info
       - NODE_ENV=development
       - MONGODB_HOST=mongodb
       - MONGODB_PORT=27017
