@@ -1,0 +1,162 @@
+<div class="exp_info">
+ <h1>General Info</h1>
+  <div id="info_toolbar"><a id="info_edit" href="#"><i class="fa fa-edit"></i> Edit</a></div>
+
+
+ <dl class="dl-horizontal">
+    <dt>Proposal</dt><dd>{{ info.value.name }}</dd>
+    <!-- <dt>Spokesperson</dt><dd><span title="{{ info.value.latest_setup.contact_email }}">{{ info.value.contact_name }}</span></dd> -->
+    <dt>Title</dt><dd>{{ info.value.latest_setup.description }}</dd>
+    <dt>Description</dt><dd>{{ info.value.latest_setup.Project_Aims_and_Biological_Relevance_Less_than_500_words }}</dd>
+    <dt>Comments</dt><dd>{{ info.value.latest_setup.Comments }}</dd>
+    <dt>user_type</dt><dd>{{ info.value.latest_setup.user_type }}</dd>
+
+</dl>
+
+
+    <!-- <dt>Submitted_Time</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Submitted_Time" value="{{ info.value.latest_setup.Submitted_Time }}" readonly></dd> -->
+
+
+ <h1>Editable Info</h1>
+ <dl class="dl-horizontal">
+
+    <dt>PI_Email</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="PI_Email" value="{{ info.value.latest_setup.PI_Email }}" readonly></dd>
+    <dt>PI_First_Name</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="PI_First_Name" value="{{ info.value.latest_setup.PI_First_Name }}" readonly></dd>
+    <dt>PI_Institution</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="PI_Institution" value="{{ info.value.latest_setup.PI_Institution }}" readonly></dd>
+    <dt>PI_Last_Name</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="PI_Last_Name" value="{{ info.value.latest_setup.PI_Last_Name }}" readonly></dd>
+
+
+    <dt>Email_of_Staff_1</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Email_of_Staff_1" value="{{ info.value.latest_setup.Email_of_Staff_1 }}" readonly></dd>
+    <dt>Email_of_Staff_2</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Email_of_Staff_2" value="{{ info.value.latest_setup.Email_of_Staff_2 }}" readonly></dd>
+    <dt>Email_of_Staff_3</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Email_of_Staff_3" value="{{ info.value.latest_setup.Email_of_Staff_3 }}" readonly></dd>
+    <dt>Email_of_Staff_4</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Email_of_Staff_4" value="{{ info.value.latest_setup.Email_of_Staff_4 }}" readonly></dd>
+
+    <dt>Name_of_Staff_1</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Name_of_Staff_1" value="{{ info.value.latest_setup.Name_of_Staff_1 }}" readonly></dd>
+    <dt>Name_of_Staff_2</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Name_of_Staff_2" value="{{ info.value.latest_setup.Name_of_Staff_2 }}" readonly></dd>
+    <dt>Name_of_Staff_3</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Name_of_Staff_3" value="{{ info.value.latest_setup.Name_of_Staff_3 }}" readonly></dd>
+    <dt>Name_of_Staff_4</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Name_of_Staff_4" value="{{ info.value.latest_setup.Name_of_Staff_4 }}" readonly></dd>
+    <dt>Institution_of_Staff_1</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Institution_of_Staff_1" value="{{ info.value.latest_setup.Institution_of_Staff_1 }}" readonly></dd>
+    <dt>Institution_of_Staff_2</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Institution_of_Staff_2" value="{{ info.value.latest_setup.Institution_of_Staff_2 }}" readonly></dd>
+    <dt>Institution_of_Staff_3</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Institution_of_Staff_3" value="{{ info.value.latest_setup.Institution_of_Staff_3 }}" readonly></dd>
+    <dt>Institution_of_Staff_4</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Institution_of_Staff_4" value="{{ info.value.latest_setup.Institution_of_Staff_4 }}" readonly></dd>
+
+
+    <dt>Phone_of_Staff_1</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Phone_of_Staff_1" value="{{ info.value.latest_setup.Phone_of_Staff_1 }}" readonly></dd>
+    <dt>Phone_of_Staff_2</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Phone_of_Staff_2" value="{{ info.value.latest_setup.Phone_of_Staff_2 }}" readonly></dd>
+    <dt>Phone_of_Staff_3</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Phone_of_Staff_3" value="{{ info.value.latest_setup.Phone_of_Staff_3 }}" readonly></dd>
+    <dt>Phone_of_Staff_4</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Phone_of_Staff_4" value="{{ info.value.latest_setup.Phone_of_Staff_4 }}" readonly></dd>
+
+
+
+ </dl>
+ <h1>Editable Info</h1>
+ <dl class="dl-horizontal">
+
+    <dt>Instrument</dt><dd>{{ info.value.latest_setup.instrument }}</dd>
+    <dt>Assigned_Date</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Assigned_Date" value="{{ info.value.latest_setup.Assigned_Date }}" readonly></dd>
+    <dt>SLAC_Staff_POC</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="SLAC_Staff_POC" value="{{ info.value.latest_setup.SLAC_Staff_POC }}" readonly></dd>
+
+
+ </dl>
+ <h1>Editable Info</h1>
+ <dl class="dl-horizontal">
+
+    <dt>Approved</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Approved" value="{{ info.value.latest_setup.Approved }}" readonly></dd>
+    <dt>Biosafety_Review_if_needed</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Biosafety_Review_if_needed" value="{{ info.value.latest_setup.Biosafety_Review_if_needed }}" readonly></dd>
+
+    <dt>viable</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="viable" value="{{ info.value.latest_setup.viable }}" readonly></dd>
+
+    <dt>BSL</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="BSL" value="{{ info.value.latest_setup.BSL }}" readonly></dd>
+    <dt>IBC_</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="IBC_" value="{{ info.value.latest_setup.IBC_ }}" readonly></dd>
+    <dt>IBC_Approve</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="IBC_Approve" value="{{ info.value.latest_setup.IBC_Approve }}" readonly></dd>
+    <dt>IBC_Attachment</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="IBC_Attachment" value="{{ info.value.latest_setup.IBC_Attachment }}" readonly></dd>
+
+<!--    <dt>Preferred_Date_1</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Preferred_Date_1" value="{{ info.value.latest_setup.Preferred_Date_1 }}" readonly></dd>
+    <dt>Preferred_Date_2</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Preferred_Date_2" value="{{ info.value.latest_setup.Preferred_Date_2 }}" readonly></dd>
+    <dt>Preferred_Date_3</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Preferred_Date_3" value="{{ info.value.latest_setup.Preferred_Date_3 }}" readonly></dd>
+ -->
+
+ </dl>
+ 
+ <h1>Editable Info</h1>
+ <dl class="dl-horizontal">
+
+
+    <dt>Anticipated_Particles_Image</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Anticipated_Particles_Image" value="{{ info.value.latest_setup.Anticipated_Particles_Image }}" readonly></dd>
+
+    <dt>Images_Targeted</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Images_Targeted" value="{{ info.value.latest_setup.Images_Targeted }}" readonly></dd>
+
+    <dt>Targeted_Res</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Targeted_Res" value="{{ info.value.latest_setup.Targeted_Res }}" readonly></dd>
+    <dt>Tomograms_Targeted</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Tomograms_Targeted" value="{{ info.value.latest_setup.Tomograms_Targeted }}" readonly></dd>
+
+
+ </dl>
+ 
+ <h1>Editable Info</h1>
+ <dl class="dl-horizontal">
+
+    <dt>Toxicity</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Toxicity" value="{{ info.value.latest_setup.Toxicity }}" readonly></dd>
+    <dt>Virus_name_strain</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Virus_name_strain" value="{{ info.value.latest_setup.Virus_name_strain }}" readonly></dd>
+
+    <dt>Biological_Material</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Biological_Material" value="{{ info.value.latest_setup.Biological_Material }}" readonly></dd>
+
+    <dt>Archaea_name_strain</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Archaea_name_strain" value="{{ info.value.latest_setup.Archaea_name_strain }}" readonly></dd>
+    <dt>Bacteria_name_strain</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Bacteria_name_strain" value="{{ info.value.latest_setup.Bacteria_name_strain }}" readonly></dd>
+    <dt>Biochemically_purified_molecule</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Biochemically_purified_molecule" value="{{ info.value.latest_setup.Biochemically_purified_molecule }}" readonly></dd>
+
+    <dt>Caption_of_Image</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Caption_of_Image" value="{{ info.value.latest_setup.Caption_of_Image }}" readonly></dd>
+    <dt>Caption_of_Structure_or_Tomogram_Image</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Caption_of_Structure_or_Tomogram_Image" value="{{ info.value.latest_setup.Caption_of_Structure_or_Tomogram_Image }}" readonly></dd>
+    <dt>Eukaryotic_cell</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Eukaryotic_cell" value="{{ info.value.latest_setup.Eukaryotic_cell }}" readonly></dd>
+
+<!--    <dt>File_size</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="File_size" value="{{ info.value.latest_setup.File_size }}" readonly></dd>
+    <dt>Filesize_KB</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Filesize_KB" value="{{ info.value.latest_setup.Filesize_KB }}" readonly></dd>
+ -->
+
+    <dt>Fungi_name_strain</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Fungi_name_strain" value="{{ info.value.latest_setup.Fungi_name_strain }}" readonly></dd>
+    <dt>Molecular_Mass_</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Molecular_Mass_" value="{{ info.value.latest_setup.Molecular_Mass_ }}" readonly></dd>
+
+    <dt>Other_Biochemically_Purified_Molecule_Type</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Other_Biochemically_Purified_Molecule_Type" value="{{ info.value.latest_setup.Other_Biochemically_Purified_Molecule_Type }}" readonly></dd>
+    <dt>Other_biological_name_strain</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Other_biological_name_strain" value="{{ info.value.latest_setup.Other_biological_name_strain }}" readonly></dd>
+    <dt>Provide_Name_strain</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Provide_Name_strain" value="{{ info.value.latest_setup.Provide_Name_strain }}" readonly></dd>
+    <dt>Provide_names_of_any_toxic_components</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Provide_names_of_any_toxic_components" value="{{ info.value.latest_setup.Provide_names_of_any_toxic_components }}" readonly></dd>
+
+    <dt>Sample_Concentration</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Sample_Concentration" value="{{ info.value.latest_setup.Sample_Concentration }}" readonly></dd>
+    <dt>Sample_purity</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Sample_purity" value="{{ info.value.latest_setup.Sample_purity }}" readonly></dd>
+    <dt>Select_agent</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Select_agent" value="{{ info.value.latest_setup.Select_agent }}" readonly></dd>
+
+
+    <dt>Parasite_name_strain</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Parasite_name_strain" value="{{ info.value.latest_setup.Parasite_name_strain }}" readonly></dd>
+    <dt>Please_specify</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Please_specify" value="{{ info.value.latest_setup.Please_specify }}" readonly></dd>
+    <dt>Please_specify_details_about_your_material</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Please_specify_details_about_your_material" value="{{ info.value.latest_setup.Please_specify_details_about_your_material }}" readonly></dd>
+    <dt>Other_Material</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Other_Material" value="{{ info.value.latest_setup.Other_Material }}" readonly></dd>
+
+ </dl>
+ 
+ <h1>Editable Info</h1>
+ <dl class="dl-horizontal">
+
+    <dt>Prelim_image</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Prelim_image" value="{{ info.value.latest_setup.Prelim_image }}" readonly></dd>
+    <dt>Prelim_structure</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Prelim_structure" value="{{ info.value.latest_setup.Prelim_structure }}" readonly></dd>
+
+    <!-- <dt>Specimen_Name</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Specimen_Name" value="{{ info.value.latest_setup.Specimen_Name }}" readonly></dd> -->
+
+
+</dl>
+
+ 
+ <h1>Editable Info</h1>
+ <dl class="dl-horizontal">
+
+    <dt>Domestic</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Domestic" value="{{ info.value.latest_setup.Domestic }}" readonly></dd>
+    <dt>Type</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Type" value="{{ info.value.latest_setup.Type }}" readonly></dd>
+    <dt>Foreign</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Foreign" value="{{ info.value.latest_setup.Foreign }}" readonly></dd>
+    <dt>Foreign_funding_sources</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Foreign_funding_sources" value="{{ info.value.latest_setup.Foreign_funding_sources }}" readonly></dd>
+    <dt>Other_US_Funding_Sources</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Other_US_Funding_Sources" value="{{ info.value.latest_setup.Other_US_Funding_Sources }}" readonly></dd>
+
+ </dl>
+ 
+
+ <h1>Notes</h1>
+<textarea class="form-control lg-autoupdate" rows="5" data-attr="setup-notes" readonly>{{ info.value.latest_setup.setup-notes }}</textarea>
+
+</div>
