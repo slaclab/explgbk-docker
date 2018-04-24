@@ -31,7 +31,7 @@ let res = [
               'GIF_K2',
               'Falcon3'
             ],
-            "phase_plate": "1"
+            "phase_plate": "1",
             "energy_filter": "1",
             "keV": 300,
             "cs": 2.7
@@ -47,7 +47,7 @@ let res = [
               'GIF_K2',
               'Falcon3'
             ],
-            "phase_plate": "1"
+            "phase_plate": "1",
             "energy_filter": "1",
             "keV": 200,
             "cs": 2.7
@@ -63,7 +63,7 @@ let res = [
               'GIF_K2',
               'Falcon3'
             ],
-            "phase_plate": "1"
+            "phase_plate": "1",
             "energy_filter": "0",
             "keV": 300,
             "cs": 2.7
