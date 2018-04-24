@@ -6,11 +6,12 @@ ENV APP_DIR /app
 ENV GUNICORN_PORT=8000
 ENV GUNICORN_USER=gunicorn
 
-RUN apk add --no-cache bash git nginx uwsgi uwsgi-python python3 \
+RUN apk add --no-cache bash git nginx uwsgi uwsgi-python python3 openldap-clients \
     && python3 -m ensurepip \
     && pip3 install --upgrade pip gunicorn \
     && adduser -D -h $APP_DIR $GUNICORN_USER
-    
+
+COPY ldap.conf /etc/openldap/ldap.conf    
 COPY entrypoint.sh /entrypoint.sh
 
 WORKDIR ${APP_DIR}
