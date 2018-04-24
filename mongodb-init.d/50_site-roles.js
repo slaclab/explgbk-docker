@@ -7,6 +7,20 @@ let res = [
   db.roles.createIndex( {app: 1, name: 1} ),
   db.roles.insertMany([
     {
+        app: "LDAP",
+        name: "Admin",
+        privileges: [
+                "manage_groups"
+        ],
+        players: [
+                "uid:mshankar",
+                "uid:wilko",
+                "uid:ytl",
+                "uid:bushnell",
+                "uid:wah"
+        ]
+    },
+    {
     	app: "LogBook",
     	name: "Editor",
     	privileges: [
