@@ -62,13 +62,13 @@ services:
       ###
       # fake a user
       ###
-      - FAKE_AUTH=1
-      - FAKE_AUTH_USER=ytl
+      # - FAKE_AUTH=1
+      # - FAKE_AUTH_USER=ytl
       ###
       # or use real webauth
       ###
-      # - REQUIRE_VALID_USER=1
-      # - USE_WEBAUTH=1
+      - REQUIRE_VALID_USER=1
+      - USE_WEBAUTH=1
       ###
       # server
       ###
@@ -94,7 +94,8 @@ services:
       - ${HOME}/certs/backend.htpasswd:/etc/httpd/certs/backend.htpasswd
       # for previews
       - ${HOME}/previews:/var/www/html/previews
-
+      # use explgbk conf
+      # - ./httpd/explgbk.conf:/etc/httpd/conf.d/explgbk.conf
     ports:
       - 443:443
       - 80:80
@@ -121,8 +122,10 @@ services:
     ###
     volumes:
       - ./explgbk:/app
-    ports:
-      - 8000:8000
+      # overload the info panel for each experiment
+      - ./info_CryoEM.html:/app/static/html/ms/info_CryoEM.html
+    #ports:
+    #  - 8000:8000
     depends_on:
       - mongodb
       - auth
