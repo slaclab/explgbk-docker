@@ -31,6 +31,7 @@ let res = [
     		"delete"
     	],
     	players: [
+    		"uid:cryo-daq",
     		"uid:mshankar",
     		"uid:wilko",
         	"uid:ytl",
