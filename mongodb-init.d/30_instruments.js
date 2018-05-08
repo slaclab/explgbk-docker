@@ -68,6 +68,12 @@ let res = [
             "keV": 300,
             "cs": 2.7
         }
+    },
+    {
+        "_id" : "Unassigned",
+        "description" : "Unallocated Experiments",
+        "params" : {
+        }
     }
     
   ])
