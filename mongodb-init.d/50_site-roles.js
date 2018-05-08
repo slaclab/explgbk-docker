@@ -13,6 +13,7 @@ let res = [
                 "manage_groups"
         ],
         players: [
+                "uid:cryo-daq",
                 "uid:mshankar",
                 "uid:wilko",
                 "uid:ytl",
