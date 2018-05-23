@@ -4,60 +4,26 @@
 
 
  <dl class="dl-horizontal">
+    <dt>Title</dt><dd>{{ info.value.description }}</dd>
     <dt>Proposal</dt><dd>{{ info.value.name }}</dd>
-    <!-- <dt>Spokesperson</dt><dd><span title="{{ info.value.latest_setup.contact_email }}">{{ info.value.contact_name }}</span></dd> -->
-    <dt>Title</dt><dd>{{ info.value.latest_setup.description }}</dd>
-    <dt>Description</dt><dd>{{ info.value.latest_setup.Project_Aims_and_Biological_Relevance_Less_than_500_words }}</dd>
+    <dt>Spokesperson</dt><dd><span title="{{ info.value.contact_email }}">{{ info.value.contact_name }}</span></dd>
+    <dt>Institution</dt><dd><span title="{{ info.value.latest_setup.institution }}">{{ info.value.institution }}</dd>
+    <dt>Type</dt><dd>{{ info.value.type }}</dd>
+    <dt>Description</dt><dd>{{ info.value.description }}</dd>
     <dt>Comments</dt><dd>{{ info.value.latest_setup.Comments }}</dd>
-    <dt>user_type</dt><dd>{{ info.value.latest_setup.user_type }}</dd>
 
 </dl>
 
 
+<h1>Apparatus</h1>
+<dl class="dl-horizontal">
+    <dt>Instrument</dt><dd>{{ info.value.instrument }}</dd>
+    <dt>Assigned Date</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="start_time" value="{{ info.value.start_time }}" readonly></dd>
+    <dt>Staff POC</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Staff Collaborator(s)" value="{{ info.value.staff_poc }}" readonly></dd>
+</dl>
     <!-- <dt>Submitted_Time</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Submitted_Time" value="{{ info.value.latest_setup.Submitted_Time }}" readonly></dd> -->
 
 
- <h1>Editable Info</h1>
- <dl class="dl-horizontal">
-
-    <dt>PI_Email</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="PI_Email" value="{{ info.value.latest_setup.PI_Email }}" readonly></dd>
-    <dt>PI_First_Name</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="PI_First_Name" value="{{ info.value.latest_setup.PI_First_Name }}" readonly></dd>
-    <dt>PI_Institution</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="PI_Institution" value="{{ info.value.latest_setup.PI_Institution }}" readonly></dd>
-    <dt>PI_Last_Name</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="PI_Last_Name" value="{{ info.value.latest_setup.PI_Last_Name }}" readonly></dd>
-
-
-    <dt>Email_of_Staff_1</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Email_of_Staff_1" value="{{ info.value.latest_setup.Email_of_Staff_1 }}" readonly></dd>
-    <dt>Email_of_Staff_2</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Email_of_Staff_2" value="{{ info.value.latest_setup.Email_of_Staff_2 }}" readonly></dd>
-    <dt>Email_of_Staff_3</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Email_of_Staff_3" value="{{ info.value.latest_setup.Email_of_Staff_3 }}" readonly></dd>
-    <dt>Email_of_Staff_4</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Email_of_Staff_4" value="{{ info.value.latest_setup.Email_of_Staff_4 }}" readonly></dd>
-
-    <dt>Name_of_Staff_1</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Name_of_Staff_1" value="{{ info.value.latest_setup.Name_of_Staff_1 }}" readonly></dd>
-    <dt>Name_of_Staff_2</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Name_of_Staff_2" value="{{ info.value.latest_setup.Name_of_Staff_2 }}" readonly></dd>
-    <dt>Name_of_Staff_3</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Name_of_Staff_3" value="{{ info.value.latest_setup.Name_of_Staff_3 }}" readonly></dd>
-    <dt>Name_of_Staff_4</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Name_of_Staff_4" value="{{ info.value.latest_setup.Name_of_Staff_4 }}" readonly></dd>
-    <dt>Institution_of_Staff_1</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Institution_of_Staff_1" value="{{ info.value.latest_setup.Institution_of_Staff_1 }}" readonly></dd>
-    <dt>Institution_of_Staff_2</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Institution_of_Staff_2" value="{{ info.value.latest_setup.Institution_of_Staff_2 }}" readonly></dd>
-    <dt>Institution_of_Staff_3</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Institution_of_Staff_3" value="{{ info.value.latest_setup.Institution_of_Staff_3 }}" readonly></dd>
-    <dt>Institution_of_Staff_4</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Institution_of_Staff_4" value="{{ info.value.latest_setup.Institution_of_Staff_4 }}" readonly></dd>
-
-
-    <dt>Phone_of_Staff_1</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Phone_of_Staff_1" value="{{ info.value.latest_setup.Phone_of_Staff_1 }}" readonly></dd>
-    <dt>Phone_of_Staff_2</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Phone_of_Staff_2" value="{{ info.value.latest_setup.Phone_of_Staff_2 }}" readonly></dd>
-    <dt>Phone_of_Staff_3</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Phone_of_Staff_3" value="{{ info.value.latest_setup.Phone_of_Staff_3 }}" readonly></dd>
-    <dt>Phone_of_Staff_4</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Phone_of_Staff_4" value="{{ info.value.latest_setup.Phone_of_Staff_4 }}" readonly></dd>
-
-
-
- </dl>
- <h1>Editable Info</h1>
- <dl class="dl-horizontal">
-
-    <dt>Instrument</dt><dd>{{ info.value.latest_setup.instrument }}</dd>
-    <dt>Assigned_Date</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="Assigned_Date" value="{{ info.value.latest_setup.Assigned_Date }}" readonly></dd>
-    <dt>SLAC_Staff_POC</dt><dd><input type="text" class="form-control lg-autoupdate" data-attr="SLAC_Staff_POC" value="{{ info.value.latest_setup.SLAC_Staff_POC }}" readonly></dd>
-
-
- </dl>
  <h1>Editable Info</h1>
  <dl class="dl-horizontal">
 
