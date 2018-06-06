@@ -1,0 +1,203 @@
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth
+spec:
+  ports:
+  - port: 443
+    targetPort: 443
+  selector:
+    name: auth
+
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: auth
+spec:
+  replicas: 1
+  selector:
+    name: auth
+  template:
+    metadata:
+      labels:
+        name: auth
+    spec:
+      #nodeSelector:
+      #  group: cryoem
+      containers:
+        - name: auth
+          image: slaclab/explgbk-auth
+          ports:
+            - containerPort: 443
+          env:
+            # - name: FAKE_AUTH
+            #   value: "1"
+            # - name: FAKE_AUTH_USER
+            #   value: "ytl"
+            - name: REQUIRE_VALID_USER
+              value: "1"
+            - name: USE_WEBAUTH
+              value: "1"
+            ###
+            # server
+            ###
+            - name: SERVER_NAME
+              value: cryoem-logbook-dev.slac.stanford.edu
+            - name: SERVER_ADMIN
+              value: ytl@slac.stanford.edu
+            - name: PROXY_HOST
+              value: explgbk
+            - name: HTTPS_REDIRECT
+              value: https://cryoem-logbook-dev.slac.stanford.edu/
+          volumeMounts:
+            - name: auth-secrets
+              mountPath: /etc/httpd/certs/
+      volumes:
+        - name: auth-secrets
+          secret:
+            secretName: auth-secrets
+            items:
+              - key: cert.crt
+                path: cert.crt
+              - key: cert.key
+                path: cert.key
+              - key: keytab_webauth
+                path: keytab_webauth
+              - key: backend.htpasswd
+                path: backend.htpasswd
+              
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: explgbk
+  labels:
+    name: explgbk
+spec:
+  ports:
+  - port: 8000
+    targetPort: 8000
+  selector:
+    name: explgbk
+
+
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: explgbk
+spec:
+  replicas: 1
+  selector:
+    name: explgbk
+  template:
+    metadata:
+      labels:
+        name: explgbk
+    spec:
+      nodeSelector:
+      #  group: cryoem
+        storage: gpfs
+      # prob need cryo gpfs?
+      containers:
+      - name: explgbk
+        image: slaclab/explgbk-docker
+        ports:
+          - containerPort: 8000
+        env:
+          - name: LOGBOOK_SITE
+            value: CryoEM
+          - name: URAWI_EXPERIMENT_LOOKUP_URL
+            value: https://userportal.slac.stanford.edu/apps/urawi/ws/cryo_btsr_info
+          - name: NODE_ENV
+            value: development
+          - name: MONGODB_HOST
+            value: mongo
+          - name: MONGODB_PORT
+            value: "27017"
+          - name: MONGODB_ADMIN_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: explgbk-writer
+                key: username
+          - name: MONGODB_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: explgbk-writer
+                key: password
+          - name: MONGODB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: explgbk-writer
+                key: username
+          - name: MONGODB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: explgbk-writer
+                key: password
+          - name: ROLES_DATABASE_HOST
+            value: mongodb
+          - name: ROLES_DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                name: explgbk-reader
+                key: username
+          - name: ROLES_DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: explgbk-reader
+                key: password
+          - name: KAFKA_BOOTSTRAP_SERVER
+            value: kafka:9092
+
+
+
+---
+  
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: www
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+spec:
+  rules:
+    - host: cryoem-logbook.slac.stanford.edu
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: auth
+            servicePort: 443
+            
+            
+---
+  
+#apiVersion: v1
+#kind: ReplicationController
+#metadata:
+#  name: kafka-test
+#spec:
+#  replicas: 1
+#  selector:
+#    name: kafka-test
+#  template:
+#    metadata:
+#      labels:
+#        name: kafka-test
+#    spec:
+#      nodeSelector:
+#        group: cryoem
+#      containers:
+#      - name: kafka-test
+#        image: slaclab/kafka-consumer:latest
+#        ports:
+#          - containerPort: 8000
+#        env:
+#          - name: KAFKA_BOOTSTRAP_SERVER
+#            value: kafka:9092

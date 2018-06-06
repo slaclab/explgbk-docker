@@ -1,0 +1,51 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: cryoem-logbook-mongo-0
+  labels:
+    type: local
+spec:
+  storageClassName: cryoem-logbook-mongodb
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /gpfs/slac/cryo/fs1/daq/data/mongodb/mongo-0
+
+
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: cryoem-logbook-mongo-1
+  labels:
+    type: local
+spec:
+  storageClassName: cryoem-logbook-mongodb
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /gpfs/slac/cryo/fs1/daq/data/mongodb/mongo-1
+
+---
+
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: cryoem-logbook-mongo-2
+  labels:
+    type: local
+spec:
+  storageClassName: cryoem-logbook-mongodb
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /gpfs/slac/cryo/fs1/daq/data/mongodb/mongo-2
+
