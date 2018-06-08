@@ -1,0 +1,31 @@
+#!/bin/sh
+
+export namespace=cryoem-logbook-dev
+export environment=dev
+
+# database stuff
+export mongodb__username=admin
+export mongodb__password=somepassword
+export explgbk_writer__username=writer
+export explgbk_writer__password=somepassword
+export explgbk_reader__username=reader
+export explgbk_reader__password=somepassword
+
+# certs
+export explgbk__cert_crt="../certs/cryoem-logbook.crt"
+export explgbk__cert_key="../certs/cryoem-logbook.key"
+export explgbk__keytab_webauth="../certs/keytab_webauth.cryoem-logbook"
+export explgbk__backend_htpasswd="../certs/backend.htpasswd"
+
+# storage / pv
+export storage__prefix_path="/gpfs/slac/cryo/fs1/daq/data/mongodb/"
+
+# mongodb nodeSelectors
+export database__nodeSelectors="storage=gpfs"
+# export database__nodeSelectors="storage=gpfs something=else"
+
+# web
+export logbook_site="CryoEM"
+export logbook_url="cryoem-logbook-dev.slac.stanford.edu"
+export logbook_admin="ytl@slac.stanford.edu"
+export logbook_urawi_endpoint="https://userportal.slac.stanford.edu/apps/urawi/ws/cryo_btsr_info"
