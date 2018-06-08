@@ -45,13 +45,13 @@ spec:
             # server
             ###
             - name: SERVER_NAME
-              value: cryoem-logbook-dev.slac.stanford.edu
+              value: ${logbook_url}
             - name: SERVER_ADMIN
-              value: ytl@slac.stanford.edu
+              value: ${logbook_admin}
             - name: PROXY_HOST
               value: explgbk
             - name: HTTPS_REDIRECT
-              value: https://cryoem-logbook-dev.slac.stanford.edu/
+              value: https://{$logbook_url}/
           volumeMounts:
             - name: auth-secrets
               mountPath: /etc/httpd/certs/
@@ -111,11 +111,11 @@ spec:
           - containerPort: 8000
         env:
           - name: LOGBOOK_SITE
-            value: CryoEM
+            value: ${logbook_site}
           - name: URAWI_EXPERIMENT_LOOKUP_URL
-            value: https://userportal.slac.stanford.edu/apps/urawi/ws/cryo_btsr_info
+            value: ${logbook_urawi_endpoint}
           - name: NODE_ENV
-            value: development
+            value: ${environment}
           - name: MONGODB_HOST
             value: mongo
           - name: MONGODB_PORT
@@ -167,7 +167,7 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
 spec:
   rules:
-    - host: cryoem-logbook.slac.stanford.edu
+    - host: ${logbook_url}
       http:
         paths:
         - path: /

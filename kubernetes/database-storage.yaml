@@ -1,51 +1,53 @@
-kind: PersistentVolume
-apiVersion: v1
-metadata:
-  name: cryoem-logbook-mongo-0
-  labels:
-    type: local
-spec:
-  storageClassName: cryoem-logbook-mongodb
-  capacity:
-    storage: 20Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: /gpfs/slac/cryo/fs1/daq/data/mongodb/mongo-0
-
+# annoyingly, PV's are tied to namespaces, so we overload teh name of the pv with the namespace
 
 ---
 
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: cryoem-logbook-mongo-1
+  name: ${namespace}-mongo-${environment}-0
   labels:
     type: local
 spec:
-  storageClassName: cryoem-logbook-mongodb
+  storageClassName: ${namespace}--mongo--${environment}
   capacity:
     storage: 20Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: /gpfs/slac/cryo/fs1/daq/data/mongodb/mongo-1
+    path: ${storage__prefix_path}/mongo-${environment}-0
 
 ---
-
 
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: cryoem-logbook-mongo-2
+  name: ${namespace}-mongo-${environment}-1
   labels:
     type: local
 spec:
-  storageClassName: cryoem-logbook-mongodb
+  storageClassName: ${namespace}--mongo--${environment}
   capacity:
     storage: 20Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: /gpfs/slac/cryo/fs1/daq/data/mongodb/mongo-2
+    path: ${storage__prefix_path}/mongo-${environment}-1
+
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: ${namespace}-mongo-${environment}-2
+  labels:
+    type: local
+spec:
+  storageClassName: ${namespace}--mongo--${environment}
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: ${storage__prefix_path}/mongo-${environment}-2
 

@@ -5,11 +5,11 @@ export environment=dev
 
 # database stuff
 export mongodb__username=admin
-export mongodb__password=somepassword
+export mongodb__password=password
 export explgbk_writer__username=writer
-export explgbk_writer__password=somepassword
+export explgbk_writer__password=password
 export explgbk_reader__username=reader
-export explgbk_reader__password=somepassword
+export explgbk_reader__password=password
 
 # certs
 export explgbk__cert_crt="../certs/cryoem-logbook.crt"
