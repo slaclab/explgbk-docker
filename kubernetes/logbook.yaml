@@ -12,24 +12,31 @@ spec:
     name: auth
 
 ---
-apiVersion: v1
-kind: ReplicationController
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: auth
 spec:
   replicas: 1
   selector:
-    name: auth
+    matchLabels:
+      name: auth
+  minReadySeconds: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
   template:
     metadata:
       labels:
         name: auth
     spec:
-      #nodeSelector:
-      #  group: cryoem
+      nodeSelector:
+$(list=(${logbook_auth__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${list[k]//\=/ }); echo "        ${kv[0]}: ${kv[1]}"; done)
       containers:
         - name: auth
-          image: slaclab/explgbk-auth
+          image: slaclab/explgbk-auth:${logbook_auth__tag}
           ports:
             - containerPort: 443
           env:
@@ -51,7 +58,7 @@ spec:
             - name: PROXY_HOST
               value: explgbk
             - name: HTTPS_REDIRECT
-              value: https://{$logbook_url}/
+              value: https://${logbook_url}/
           volumeMounts:
             - name: auth-secrets
               mountPath: /etc/httpd/certs/
@@ -87,26 +94,31 @@ spec:
 
 
 ---
-apiVersion: v1
-kind: ReplicationController
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: explgbk
 spec:
-  replicas: 1
+  replicas: 2
   selector:
-    name: explgbk
+    matchLabels:
+      name: explgbk
+  minReadySeconds: 30
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
   template:
     metadata:
       labels:
         name: explgbk
     spec:
       nodeSelector:
-      #  group: cryoem
-        storage: gpfs
-      # prob need cryo gpfs?
+$(list=(${logbook_explgbk__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${list[k]//\=/ }); echo "        ${kv[0]}: ${kv[1]}"; done)
       containers:
       - name: explgbk
-        image: slaclab/explgbk-docker
+        image: slaclab/explgbk-docker:${logbook_explgbk__tag}
         ports:
           - containerPort: 8000
         env:

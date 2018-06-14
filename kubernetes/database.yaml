@@ -76,7 +76,7 @@ $(list=(${database__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${list[
                 - --eval
                 - "db.adminCommand('ping')"
           volumeMounts:
-            - name: mongo
+            - name: mongo-data
               mountPath: /data/db
           #  - name: docker-initdb-config
           #    mountPath: /docker-entrypoint-initdb.d
@@ -107,7 +107,7 @@ $(list=(${database__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${list[
         
   volumeClaimTemplates:
     - metadata:
-        name: mongo
+        name: mongo-data
       spec:
         accessModes: [ "ReadWriteOnce" ]
         storageClassName: ${namespace}--mongo--${environment}
