@@ -38,6 +38,7 @@ gen_template "secrets.yaml" | kubectl  -n ${namespace} ${ACTION} --record -f -
 
 # create the storage pv
 gen_template "database-storage.yaml" | kubectl  -n ${namespace} ${ACTION} --record -f -
+gen_template "cryoem-storage.yaml" | kubectl  -n ${namespace} ${ACTION} --record -f -
 
 # create the message bus
 # gen_template "message_bus.yaml" | 
