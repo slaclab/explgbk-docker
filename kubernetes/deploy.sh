@@ -12,7 +12,7 @@ source ./${CONFIG_FILE}
 
 # action
 ACTION="${2}"
-if [ "${ACTION}" = "--update" ]; then
+if [ "${ACTION}" = "--update" ] || [ "${ACTION}" = "--upgrade" ] ; then
   ACTION="replace"
 else
   ACTION="apply"
