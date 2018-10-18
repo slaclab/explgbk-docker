@@ -185,6 +185,18 @@ $(list=(${logbook_auth__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${l
           image: slaclab/explgbk-auth:${logbook_auth__tag}
           ports:
             - containerPort: 443
+          #livenessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: 433 
+          #  initialDelaySeconds: 10
+          #  periodSeconds: 10
+          #readinessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: 433
+          #  initialDelaySeconds: 30
+          #  periodSeconds: 10
           env:
             # - name: FAKE_AUTH
             #   value: "1"
@@ -281,6 +293,18 @@ $(list=(${logbook_explgbk__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(
         image: slaclab/explgbk-docker:${logbook_explgbk__tag}
         ports:
           - containerPort: 8000
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /status
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
         env:
           - name: LOGBOOK_SITE
             value: ${logbook_site}
