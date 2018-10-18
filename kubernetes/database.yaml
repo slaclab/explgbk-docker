@@ -32,7 +32,7 @@ spec:
         role: mongo
         environment: ${environment}
     spec:
-      terminationGracePeriodSeconds: 10
+      terminationGracePeriodSeconds: 60
       nodeSelector:
 $(list=(${database__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${list[k]//\=/ }); echo "        ${kv[0]}: ${kv[1]}"; done)
       containers:
@@ -42,8 +42,8 @@ $(list=(${database__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${list[
             - mongod
             # - --config=/data/configdb/mongod.conf
             - --dbpath=/data/db
-            - "--replSet"
-            - "${environment}"
+            #- "--replSet"
+            #- "${environment}"
             - "--smallfiles"
             - "--noprealloc"
             - "--bind_ip"
@@ -64,12 +64,14 @@ $(list=(${database__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${list[
           ports:
             - containerPort: 27017
           livenessProbe:
+            initialDelaySeconds: 300
             exec:
               command:
                 - mongo
                 - --eval
                 - "db.adminCommand('ping')"
           readinessProbe:
+            initialDelaySeconds: 60
             exec:
               command:
                 - mongo
@@ -80,13 +82,13 @@ $(list=(${database__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${list[
               mountPath: /data/db
           #  - name: docker-initdb-config
           #    mountPath: /docker-entrypoint-initdb.d
-        - name: mongo-sidecar
-          image: cvallance/mongo-k8s-sidecar
-          env:
-            - name: KUBERNETES_MONGO_SERVICE_NAME
-              value: mongo
-            - name: MONGO_SIDECAR_POD_LABELS
-              value: "role=mongo,environment=${environment}"
+        #- name: mongo-sidecar
+        #  image: cvallance/mongo-k8s-sidecar
+        #  env:
+        #    - name: KUBERNETES_MONGO_SERVICE_NAME
+        #      value: mongo
+        #    - name: MONGO_SIDECAR_POD_LABELS
+        #      value: "role=mongo,environment=${environment}"
       #volumes:
       #  - name: docker-initdb-config
       #    configMap:

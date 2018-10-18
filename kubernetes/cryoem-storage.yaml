@@ -1,0 +1,17 @@
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: ${namespace}-expdata-${environment}
+  labels:
+    type: local
+spec:
+  storageClassName: ${namespace}-expdata-${environment}
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadOnlyMany
+  hostPath:
+    path: ${storage__expdata}
+

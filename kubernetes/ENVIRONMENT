@@ -17,15 +17,23 @@ export explgbk__cert_key="../certs/cryoem-logbook.key"
 export explgbk__keytab_webauth="../certs/keytab_webauth.cryoem-logbook"
 export explgbk__backend_htpasswd="../certs/backend.htpasswd"
 
+# mesage bus
+export message_bus_zk__nodeSelectors="group=cryoem"
+export message_bus_kafka__nodeSelectors="group=cryoem"
+
 # storage / pv
 export storage__prefix_path="/gpfs/slac/cryo/fs1/daq/data/mongodb/"
+export storage__expdata="/gpfs/slac/cryo/fs1/exp/"
 
 # mongodb nodeSelectors
-export database__nodeSelectors="storage=gpfs"
-# export database__nodeSelectors="storage=gpfs something=else"
+export database__nodeSelectors="storage=gpfs group=cryoem"
 
 # web
 export logbook_site="CryoEM"
 export logbook_url="cryoem-logbook-dev.slac.stanford.edu"
 export logbook_admin="ytl@slac.stanford.edu"
 export logbook_urawi_endpoint="https://userportal.slac.stanford.edu/apps/urawi/ws/cryo_btsr_info"
+export logbook_auth__nodeSelectors="storage=gpfs"
+export logbook_explgbk__nodeSelectors="group=cryoem"
+export logbook_explgbk__tag="20180614.1"
+export logbook_auth__tag="latest"
