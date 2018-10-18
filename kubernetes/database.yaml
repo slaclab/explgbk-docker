@@ -71,6 +71,7 @@ $(list=(${database__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${list[
                 - --eval
                 - "db.adminCommand('ping')"
           readinessProbe:
+            initialDelaySeconds: 60
             exec:
               command:
                 - mongo
