@@ -22,7 +22,7 @@ spec:
   serviceName: "mongo"
   updateStrategy:
     type: RollingUpdate
-  replicas: 1
+  replicas: 1 
   selector:
     matchLabels:
       role: mongo
@@ -37,14 +37,14 @@ spec:
 $(list=(${database__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${list[k]//\=/ }); echo "        ${kv[0]}: ${kv[1]}"; done)
       containers:
         - name: mongo
-          image: mongo
+          image: mongo:4.1
           command:
             - mongod
             # - --config=/data/configdb/mongod.conf
             - --dbpath=/data/db
             #- "--replSet"
             #- "${environment}"
-            - "--smallfiles"
+            #- "--smallfiles"
             - "--noprealloc"
             - "--bind_ip"
             - 0.0.0.0
