@@ -73,8 +73,8 @@ spec:
                     values:
                     - zk
               topologyKey: "kubernetes.io/hostname"
-      nodeSelector:
-        group: cryoem
+      #nodeSelector:
+      #  group: cryoem
       containers:
       - name: kubernetes-zookeeper
         imagePullPolicy: Always
@@ -461,8 +461,8 @@ spec:
       # annotations:
     spec:
       terminationGracePeriodSeconds: 30
-      nodeSelector:
-        group: cryoem
+      #nodeSelector:
+      #  group: cryoem
       initContainers:
       - name: init-config
         image: solsson/kafka-initutils
