@@ -271,7 +271,7 @@ kind: Deployment
 metadata:
   name: explgbk
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       name: explgbk
