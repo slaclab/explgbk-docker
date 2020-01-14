@@ -78,10 +78,13 @@ data:
         # ServerAdmin admin@localhost.com
         # ServerName localhost
         SSLEngine on
-        SSLProtocol all -SSLv2
+        SSLHonorCipherOrder on
+    #    SSLProtocol all -SSLv2
+        SSLProtocol +TLSv1 +TLSv1.1 +TLSv1.2 -SSLv2 -SSLv3 -TLSv1 -TLSv1.1 
     #    SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM:+LOW
-        SSLCipherSuite ALL:!aNULL:!ADH:!eNULL:!LOW:!EXP:RC4+RSA:+HIGH:+MEDIUM
-        #SSLCertificateChainFile /etc/httpd/conf/ssl/IntermediateCA.crt
+    #    SSLCipherSuite ALL:!aNULL:!ADH:!eNULL:!LOW:!EXP:RC4+RSA:+HIGH:+MEDIUM
+        SSLCipherSuite "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS"
+        SSLCertificateChainFile /etc/httpd/certs/intermediates.cer
         SSLCertificateFile /etc/httpd/certs/cert.crt
         SSLCertificateKeyFile /etc/httpd/certs/cert.key
         Header always set Strict-Transport-Security "max-age=63072000; includeSubdomains;"
@@ -243,6 +246,8 @@ $(list=(${logbook_auth__nodeSelectors// / }); for k in "${!list[@]}"; do kv=(${l
                 path: keytab_webauth
               - key: backend.htpasswd
                 path: backend.htpasswd
+              - key: intermediates.cer
+                path: intermediates.cer
         - name: auth-exp-data
           persistentVolumeClaim:
             claimName: ${namespace}-expdata-${environment}
