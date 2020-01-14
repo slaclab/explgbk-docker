@@ -34,18 +34,19 @@ function gen_template() {
 kubectl create namespace ${namespace}
 
 # create the secrets
-gen_template "secrets.yaml" | kubectl  -n ${namespace} ${ACTION} --record -f -
+gen_template "secrets.yaml" | kubectl  -n ${namespace} ${ACTION} -f -
 
 # create the storage pv
-gen_template "database-storage.yaml" | kubectl  -n ${namespace} ${ACTION} --record -f -
-gen_template "cryoem-storage.yaml" | kubectl  -n ${namespace} ${ACTION} --record -f -
+gen_template "database-storage.yaml" | kubectl  -n ${namespace} ${ACTION}  -f -
+gen_template "cryoem-storage.yaml" | kubectl  -n ${namespace} ${ACTION}  -f -
 
 # create the message bus
 # gen_template "message_bus.yaml" | 
-kubectl -n ${namespace} apply  --record -f message_bus.yaml
+gen_template "message_bus.yaml" | kubectl -n ${namespace} ${ACTION} -f -
 
 # create database backend
-gen_template "database.yaml" | kubectl  -n ${namespace} ${ACTION} --record -f -
+gen_template "database.yaml" | kubectl  -n ${namespace} ${ACTION}  -f -
 
 # # create the logbook
-gen_template "logbook.yaml" | kubectl -n ${namespace} ${ACTION} --record -f -
+gen_template "logbook.yaml" | kubectl -n ${namespace} ${ACTION}  -f -
+gen_template "auth.yaml" | kubectl -n ${namespace} ${ACTION}  -f -
