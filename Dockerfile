@@ -6,10 +6,10 @@ ENV APP_DIR /app
 ENV GUNICORN_PORT=8000
 ENV GUNICORN_USER=gunicorn
 
+RUN adduser -D -h $APP_DIR $GUNICORN_USER
+
 RUN apk add --no-cache bash git nginx uwsgi uwsgi-python python3 openldap-clients \
-    && python3 -m ensurepip \
-    && pip3 install --upgrade pip gunicorn \
-    && adduser -D -h $APP_DIR $GUNICORN_USER
+    gcc libffi-dev python3-dev musl-dev libressl-dev curl curl-dev nodejs
 
 COPY ldap.conf /etc/openldap/ldap.conf    
 COPY entrypoint.sh /entrypoint.sh
@@ -19,16 +19,39 @@ COPY explgbk/ ${APP_DIR}/
 ENV GUNICORN_MODULE=start
 ENV GUNICORN_CALLABLE=app
 
-RUN apk add --no-cache gcc libffi-dev python3-dev musl-dev libressl-dev curl-dev
-RUN pip3 install -r ${APP_DIR}/requirements.txt
+RUN python3 -m ensurepip \
+    && pip3 install --upgrade pip gunicorn \
+    && pip3 install -r ${APP_DIR}/requirements.txt \
+    && rm -r /root/.cache
 
-RUN apk add --no-cache nodejs
-RUN npm install --global jquery bootstrap@3.3.7 eonasdan-bootstrap-datetimepicker lodash moment mustache socket.io socket.io-client  jquery.noty.packaged.js font-awesome moment-timezone@0.4.0 summernote
+RUN npm install --global \
+    @fortawesome/fontawesome-free \
+    acorn@^6.0.0 \
+    acorn-jsx \
+    acorn-dynamic-import \
+    bootstrap@4.4.1 \
+    bufferutil@^4.0.1 \
+    font-awesome \
+    jquery \
+    jquery.noty.packaged.js \
+    lodash \
+    moment \
+    moment-timezone \
+    mustache \
+    noty \
+    plotly.js \
+    popper.js \
+    selectize \
+    socket.io \
+    socket.io-client \
+    summernote \
+    tempusdominus-bootstrap-4 \
+    tempusdominus-core \
+    utf-8-validate@^5.0.2 \
+    ws@7.2.1 
+
 #RUN npm install --global @mapbox/mapbox-gl-style-spec @mapbox/mapbox-gl-supported plotly.js
-RUN apk add --no-cache curl
 RUN mkdir -p /usr/lib/node_modules/plotly.js/dist &&  curl -L 'https://cdn.plot.ly/plotly-latest.min.js' > /usr/lib/node_modules/plotly.js/dist/plotly.min.js
-
-RUN rm -r /root/.cache
 
 EXPOSE 8000
 

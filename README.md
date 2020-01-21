@@ -30,9 +30,14 @@ Then build the logbook:
     cd explgbk-docker/
     docker build -t slaclab/explgbk-docker .
 
-Run docker compose to bring up entire environment
+Bring the entire environment up with either docker-compose:
 
     docker-compose -f docker-compose.yaml up
+
+or with Kustomize:
+
+    kubectl apply -k kubernetes/overlays/dev
+
 
 ## Customize
 
