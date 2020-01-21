@@ -1,0 +1,17 @@
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: cryoem-logbook--mongo-0
+  labels:
+    type: local
+spec:
+  storageClassName: cryoem-logbook--mongo
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /scratch/mongo-0
+

@@ -1,0 +1,31 @@
+namespace: cryoem-logbook-dev
+
+resources:
+#- database-storage.yaml
+- cryoem-storage.yaml
+- zookeeper.yaml
+- message_bus.yaml
+- database.yaml
+- logbook.yaml
+- auth.yaml
+
+#secretGenerator:
+#- name: mongo
+#  literals:
+#  - username=admin
+#  - password=somepassword
+#- name: explgbk-writer
+#  literals:
+#  - username=writer
+#  - password=somepassword
+#- name: explgbk-reader
+#  literals:
+#  - username=reader
+#  - oasswird=somepassword
+#- name: auth-secrets
+#  literals:
+#  - cert.crt=TBD
+#  - cert.key=TBD
+#  - keytab_webauth=TBD
+#  - backend.htpasswd=TBD
+

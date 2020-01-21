@@ -1,0 +1,103 @@
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: explgbk
+  labels:
+    name: explgbk
+spec:
+  ports:
+  - port: 8000
+    targetPort: 8000
+  selector:
+    name: explgbk
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: explgbk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: explgbk
+  minReadySeconds: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        name: explgbk
+    spec:
+      containers:
+      - name: explgbk
+        #image: slaclab/explgbk-docker:20190408.0
+        image: slaclab/explgbk-docker:20200116.0
+        # imagePullPolicy: Always
+        ports:
+          - containerPort: 8000
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /status
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        env:
+          - name: LOGBOOK_SITE
+            value: CryoEM
+          - name: URAWI_EXPERIMENT_LOOKUP_URL
+            value: https://userportal.slac.stanford.edu/apps/urawi/ws/cryo_btsr_info
+          - name: NODE_ENV
+            value: prod
+          - name: MONGODB_URL
+            value: rs0/mongo-0.mongo:27017,mongo-1.mongo:27017,mongo-2.mongo:27017
+          #- name: MONGODB_PORT
+          #  value: "27017"
+          #- name: MONGODB_ADMIN_USERNAME
+          #  valueFrom:
+          #    secretKeyRef:
+          #      name: explgbk-writer
+          #      key: username
+          #- name: MONGODB_ADMIN_PASSWORD
+          #  valueFrom:
+          #    secretKeyRef:
+          #      name: explgbk-writer
+          #      key: password
+          - name: MONGODB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: explgbk-writer
+                key: username
+          - name: MONGODB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: explgbk-writer
+                key: password
+          - name: ROLES_DATABASE_HOST
+            value: mongodb
+          - name: ROLES_DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                name: explgbk-reader
+                key: username
+          - name: ROLES_DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: explgbk-reader
+                key: password
+          - name: KAFKA_BOOTSTRAP_SERVER
+            value: cp-kafka:9092
+
+

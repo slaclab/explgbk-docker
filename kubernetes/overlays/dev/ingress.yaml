@@ -1,0 +1,17 @@
+---
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: www
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+spec:
+  rules:
+    - host: cryoem-logbook-dev.slac.stanford.edu
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: auth
+            servicePort: 443

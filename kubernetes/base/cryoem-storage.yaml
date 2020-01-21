@@ -1,0 +1,15 @@
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: cryoem-logbook--expdata
+  labels:
+    type: local
+spec:
+  storageClassName: cryoem-logbook--expdata
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadOnlyMany
+  hostPath:
+    path: /gpfs/slac/cryo/fs1/exp/

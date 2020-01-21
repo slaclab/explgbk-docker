@@ -1,0 +1,77 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: cryoem-logbook-dev--mongo-0
+  labels:
+    type: local
+spec:
+  storageClassName: cryoem-logbook-dev--mongo
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /scratch/daq/dev/mongo-0
+    #path: /gpfs/slac/cryo/fs1/daq/dev/mongo-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - influxdb04
+
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: cryoem-logbook-dev--mongo-1
+  labels:
+    type: local
+spec:
+  storageClassName: cryoem-logbook-dev--mongo
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /scratch/daq/dev/mongo-1
+    #path: /gpfs/slac/cryo/fs1/daq/dev/mongo-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - influxdb04
+
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: cryoem-logbook-dev--mongo-2
+  labels:
+    type: local
+spec:
+  storageClassName: cryoem-logbook-dev--mongo
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /scratch/daq/dev/mongo-2
+    #path: /gpfs/slac/cryo/fs1/daq/dev/mongo-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - influxdb04
+
