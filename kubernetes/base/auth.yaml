@@ -101,8 +101,8 @@ data:
 
         <LocationMatch "^/lgbk_socketio/(.*)$">
             RequestHeader set REMOTE_USER "%{REMOTE_USER}e"
-            ProxyPass ws://explgbk:8000/\$1
-            ProxyPassReverse ws://explgbk:8000/\$1
+            ProxyPass ws://explgbk:8000/$1
+            ProxyPassReverse ws://explgbk:8000/$1
         </LocationMatch>
 
         <LocationMatch "^/(?<yyyymm>[^/]+)/(?<expname>[^_]+)_TEM(?<tem>\d)/(?<filepath>.*)$">
@@ -111,7 +111,7 @@ data:
             AuthType WebAuth
             require valid-user
             Alias "/expdata/%{env:MATCH_YYYYMM}/%{env:MATCH_EXPNAME}_TEM%{env:MATCH_TEM}/%{env:MATCH_FILEPATH}"
-            SetEnvIf Cookie "LGBK_EXT_PREVIEW=([^;]+)" HASHED_PREVIEW_COOKIE=\$1
+            SetEnvIf Cookie "LGBK_EXT_PREVIEW=([^;]+)" HASHED_PREVIEW_COOKIE=$1
             Require expr "%{base64:%{md5:%{reqenv:MATCH_EXPNAME}SLACExpLgBk}} == %{unescape:%{reqenv:HASHED_PREVIEW_COOKIE}}"
         </LocationMatch>
 
