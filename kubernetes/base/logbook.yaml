@@ -75,6 +75,8 @@ spec:
           #    secretKeyRef:
           #      name: explgbk-writer
           #      key: password
+          - name: IMAGE_STORE_URL
+            value: "mongo://"
           - name: MONGODB_USERNAME
             valueFrom:
               secretKeyRef:
