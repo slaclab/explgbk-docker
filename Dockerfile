@@ -8,8 +8,9 @@ ENV GUNICORN_USER=gunicorn
 
 RUN adduser -D -h $APP_DIR $GUNICORN_USER
 
-RUN apk add --no-cache bash git nginx uwsgi uwsgi-python python3 openldap-clients \
-    gcc libffi-dev python3-dev musl-dev libressl-dev curl curl-dev nodejs
+RUN apk add --no-cache bash file git nginx uwsgi uwsgi-python python3 openldap-clients \
+    gcc libffi-dev python3-dev musl-dev libressl-dev curl curl-dev nodejs \
+    imagemagick
 
 COPY ldap.conf /etc/openldap/ldap.conf    
 COPY entrypoint.sh /entrypoint.sh
