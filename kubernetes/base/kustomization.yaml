@@ -9,6 +9,11 @@ resources:
 - logbook.yaml
 - auth.yaml
 
+configMapGenerator:
+- name: auth-config 
+  files:
+  - explgbk.conf
+
 #secretGenerator:
 #- name: mongo
 #  literals:
