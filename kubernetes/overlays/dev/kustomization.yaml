@@ -10,7 +10,7 @@ resources:
 
 patchesStrategicMerge:
 - storage-patches.yaml
-- nodeSelector-patches.yaml
+#- nodeSelector-patches.yaml
 
 secretGenerator:
 - name: mongodb
@@ -35,4 +35,4 @@ secretGenerator:
 
 images:
 - name: slaclab/explgbk-docker
-  newTag: '20200121.4'
+  newTag: '20200124.0'
