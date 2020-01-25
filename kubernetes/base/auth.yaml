@@ -98,6 +98,29 @@ spec:
             - name: auth-configmap
               mountPath: /etc/httpd/conf.d/explgbk.conf
               subPath: explgbk.conf
+        - name: telegraf
+          image: docker.io/telegraf:1.13.2
+          resources:
+            limits:
+              memory: 500Mi
+            requests:
+              cpu: 500m
+              memory: 500Mi
+          env:
+            - name: ENVIRONMENT
+              value: dev
+            - name: MONITOR_HOST
+              value: http://influxdb01.slac.stanford.edu:8086
+            - name: MONITOR_DATABASE
+              value: cryoem-logbook
+          volumeMounts:
+          - name: telegraf-config
+            mountPath: /etc/telegraf
+          #env:
+          #- name: HOSTNAME
+          #  valueFrom:
+          #    fieldRef:
+          #      fieldPath: spec.nodeName
       volumes:
         - name: auth-secrets
           secret:
@@ -122,4 +145,6 @@ spec:
             items:
               - key: explgbk.conf
                 path: explgbk.conf
-              
+        - name: telegraf-config
+          configMap:
+            name: telegraf-apache
