@@ -13,6 +13,15 @@ configMapGenerator:
 - name: auth-config 
   files:
   - explgbk.conf
+- name: telegraf-apache
+  files:
+  - telegraf.conf=telegraf-apache.conf
+- name: telegraf-gunicorn
+  files:
+  - telegraf.conf=telegraf-gunicorn.conf
+- name: telegraf-mongodb
+  files:
+  - telegraf.conf=telegraf-mongodb.conf
 
 #secretGenerator:
 #- name: mongo
