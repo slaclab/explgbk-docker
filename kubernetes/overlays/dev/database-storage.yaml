@@ -7,21 +7,25 @@ metadata:
 spec:
   storageClassName: cryoem-logbook-dev--mongo
   capacity:
-    storage: 20Gi
+    storage: 50Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /scratch/daq/dev/mongo-0
-    #path: /gpfs/slac/cryo/fs1/daq/dev/mongo-0
+    #path: /scratch/daq/dev/mongo-0
+    path: /gpfs/slac/cryo/fs1/daq/dev/mongo/mongo-0
   nodeAffinity:
     required:
       nodeSelectorTerms:
       - matchExpressions:
-        - key: kubernetes.io/hostname
+        #- key: kubernetes.io/hostname
+        #  operator: In
+        #  values:
+        #  - ocio-gpu02
+        - key: storage/cryoem
           operator: In
           values:
-          - ocio-gpu02
+          - 'true'
 
 ---
 kind: PersistentVolume
@@ -33,21 +37,25 @@ metadata:
 spec:
   storageClassName: cryoem-logbook-dev--mongo
   capacity:
-    storage: 20Gi
+    storage: 50Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /scratch/daq/dev/mongo-1
-    #path: /gpfs/slac/cryo/fs1/daq/dev/mongo-0
+    #path: /scratch/daq/dev/mongo-1
+    path: /gpfs/slac/cryo/fs1/daq/dev/mongo/mongo-1
   nodeAffinity:
     required:
       nodeSelectorTerms:
       - matchExpressions:
-        - key: kubernetes.io/hostname
+        #- key: kubernetes.io/hostname
+        #  operator: In
+        #  values:
+        #  - os-dev02
+        - key: storage/cryoem
           operator: In
           values:
-          - os-dev02
+          - 'true'
 
 ---
 kind: PersistentVolume
@@ -59,7 +67,7 @@ metadata:
 spec:
   storageClassName: cryoem-logbook-dev--mongo
   capacity:
-    storage: 20Gi
+    storage: 50Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
