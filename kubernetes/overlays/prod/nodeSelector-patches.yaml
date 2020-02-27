@@ -1,0 +1,10 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+spec:
+  template:
+    spec:
+      nodeSelector:
+        group/cryoem: 'true'
+        storage/cryoem: 'true'

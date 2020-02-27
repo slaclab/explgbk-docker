@@ -1,0 +1,42 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: cryoem-logbook--expdata
+spec:
+  storageClassName: cryoem-logbook-prod--expdata
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+spec:
+  template:
+    spec:
+      containers:
+      - name: auth
+        env:
+        #- name: REQUIRE_VALID_USER
+        #  value: "1"
+        #- name: USE_WEBAUTH
+        #  value: "1"
+        #- name: WEBAUTH_LOGIN_URL
+        #  value: https://webauth.slac.stanford.edu/login/
+        #- name: WEBAUTH_WEBKDC_URL
+        #  value: https://webauth.slac.stanford.edu/webkdc-service/
+        - name: SERVER_NAME
+          value: cryoem-logbook.slac.stanford.edu
+        #- name: SERVER_ADMIN
+        #  value: cryoem@slac.stanford.edu
+        #- name: PROXY_HOST
+        #  value: explgbk
+        #- name: HTTPS_REDIRECT
+        #  value: http://www/
+      - name: telegraf
+        env:
+        - name: ENVIRONMENT
+          value: prod
+        #- name: MONITOR_HOST
+        #  value: https://influxdb.slac.stanford.edu:443
+        #- name: MONITOR_DATABASE
+        #  value: cryoem-logbook

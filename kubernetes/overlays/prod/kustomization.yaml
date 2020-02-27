@@ -1,0 +1,41 @@
+namespace: cryoem-logbook-prod
+
+bases:
+- ../../base/
+
+resources:
+- ns.yaml
+- database-storage.yaml
+- ingress.yaml
+- cryoem-storage.yaml
+
+patchesStrategicMerge:
+- auth-patches.yaml
+- storage-patches.yaml
+#- nodeSelector-patches.yaml
+
+secretGenerator:
+- name: mongodb
+  literals:
+  - username=admin
+  - password=somepassword
+- name: explgbk-writer
+  literals:
+  - username=writer
+  - password=somepassword
+- name: explgbk-reader
+  literals:
+  - username=reader
+  - password=somepassword
+- name: auth-secrets
+  files:
+  - ./cert.crt
+  - ./intermediates.cer
+  - ./cert.key
+  - ./keytab_webauth
+  - ./backend.htpasswd
+
+images:
+- name: slaclab/explgbk-docker
+  newTag: '20200218.0' #20200226.0'
+  #newTag: '20200226.0'
