@@ -706,7 +706,8 @@ spec:
         configMap:
           name: cp-kafka-jmx-configmap
       - name: datadir-0
-        emptyDir: {}
+        emptyDir:
+          sizeLimit: "1Gi"
 ---
 #apiVersion: v1
 #kind: Pod

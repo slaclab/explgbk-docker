@@ -2,7 +2,7 @@ namespace: cryoem-logbook-dev
 
 resources:
 #- database-storage.yaml
-- cryoem-storage.yaml
+#- cryoem-storage.yaml
 - zookeeper.yaml
 - message_bus.yaml
 - database.yaml

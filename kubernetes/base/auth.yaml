@@ -34,7 +34,7 @@ kind: Deployment
 metadata:
   name: auth
 spec:
-  replicas: 2 
+  replicas: 1 
   selector:
     matchLabels:
       name: auth
@@ -110,7 +110,7 @@ spec:
             - name: ENVIRONMENT
               value: dev
             - name: MONITOR_HOST
-              value: http://influxdb01.slac.stanford.edu:8086
+              value: https://influxdb.slac.stanford.edu:443
             - name: MONITOR_DATABASE
               value: cryoem-logbook
           volumeMounts:
