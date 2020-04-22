@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collab-listener
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: collab-listener
+  template:
+    metadata:
+      labels:
+        app: collab-listener
+    spec:
+      containers:
+      - name: collab-listener
+        image: slaclab/explgbk-collab-listener:20200421.0
+        imagePullPolicy: Always
+        env:
+        - name: KAFKA_BOOTSTRAP_SERVER
+          value: cp-kafka:9092
+        - name: KAFKA_TOPIC
+          value: roles
+        - name: KAFKA_GROUP_ID
+          value: roles

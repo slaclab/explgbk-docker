@@ -7,6 +7,7 @@ resources:
 - ns.yaml
 - database-storage.yaml
 - ingress.yaml
+- collab-listener.yaml
 
 patchesStrategicMerge:
 - storage-patches.yaml
@@ -35,5 +36,5 @@ secretGenerator:
 
 images:
 - name: slaclab/explgbk-docker
-  #newTag: '20200218.0'
-  newTag: '20200226.4'
+  #newTag: '20200401.0'
+  newTag: '20200421.0'
