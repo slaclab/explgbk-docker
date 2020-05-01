@@ -37,6 +37,5 @@ secretGenerator:
 
 images:
 - name: slaclab/explgbk-docker
-  #newTag: '20200308.0'
-  #newTag: '20200320.0'
-  newTag: '20200401.0'
+  newTag: '20200501.0'
+  #newTag: '20200401.0'
