@@ -1,15 +1,36 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: cryoem-logbook--exp
+spec:
+  storageClassName: cryoem-logbook-prod--exp
+  accessModes:
+    - "ReadWriteMany"
+  resources:
+    requests:
+      storage: 1Gi
+
+---
 
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: cryoem-logbook-prod--expdata
+  name: cryoem-logbook-prod--exp
   labels:
     type: local
 spec:
-  storageClassName: cryoem-logbook-prod--expdata
+  storageClassName: cryoem-logbook-prod--exp
   capacity:
     storage: 1Gi
   accessModes:
-    - ReadOnlyMany
-  hostPath:
+    - ReadWriteMany
+  local:
     path: /gpfs/slac/cryo/fs1/exp/
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: storage/cryoem
+          operator: In
+          values:
+          - 'true'
