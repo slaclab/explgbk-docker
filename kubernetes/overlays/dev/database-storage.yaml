@@ -58,3 +58,28 @@ spec:
           - 'true'
 
 ---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: cryoem-logbook-dev--mongo-2
+  labels:
+    type: local
+spec:
+  storageClassName: cryoem-logbook-dev--mongo
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /gpfs/slac/cryo/fs1/daq/dev/mongo/mongo-2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: storage/cryoem
+          operator: In
+          values:
+          - 'true'
+
