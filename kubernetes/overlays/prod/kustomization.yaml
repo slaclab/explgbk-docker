@@ -34,8 +34,15 @@ secretGenerator:
   - ./cert.key
   - ./keytab_webauth
   - ./backend.htpasswd
+- name: collab-listener
+  literals:
+  - username=cryo-daq
+  files:
+  - password=./collab-listener.password
 
 images:
 - name: slaclab/explgbk-docker
-  newTag: '20200501.0'
-  #newTag: '20200401.0'
+  #newTag: '20200501.1'
+  newTag: '20200525.0'
+- name: slaclab/explgbk-collab-listener
+  newTag: "20200501.1"
