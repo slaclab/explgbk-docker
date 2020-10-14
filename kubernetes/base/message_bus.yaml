@@ -1,668 +1,303 @@
-#---
-#apiVersion: v1
-#kind: ConfigMap
-#metadata:
-#  name: cp-kafka-connect-jmx-configmap
-#  labels:
-#    app: cp-kafka-connect
-#data:
-#  jmx-kafka-connect-prometheus.yml: |+
-#    jmxUrl: service:jmx:rmi:///jndi/rmi://localhost:5555/jmxrmi
-#    lowercaseOutputName: true
-#    lowercaseOutputLabelNames: true
-#    ssl: false
-#    rules:
-#    - pattern : "kafka.connect<type=connect-worker-metrics>([^:]+):"
-#      name: "cp_kafka_connect_connect_worker_metrics_$1"
-#    - pattern : "kafka.connect<type=connect-metrics, client-id=([^:]+)><>([^:]+)"
-#      name: "cp_kafka_connect_connect_metrics_$1_$2"
-#    - pattern : "kafka.connect<type=connector-task-metrics, connector=([^:]+), task=([^:]+)><>status: ([^:]+)"
-#      name: "cp_kafka_connect_connect_connector_metrics"
-#      value: 1
-#      labels:
-#        connector: $1
-#        task: $2
-#        status: $3
 ---
-apiVersion: v1
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: node-reader
+  labels:
+    origin: github.com_Yolean_kubernetes-kafka
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pod-labler
+  namespace: kafka
+  labels:
+    origin: github.com_Yolean_kubernetes-kafka
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - update
+  - patch
+---
+
+
+
+
 kind: ConfigMap
 metadata:
-  name: cp-kafka-rest-jmx-configmap
-  labels:
-    app: cp-kafka-rest
-data:
-  jmx-kafka-rest-prometheus.yml: |+
-    jmxUrl: service:jmx:rmi:///jndi/rmi://localhost:5555/jmxrmi
-    lowercaseOutputName: true
-    lowercaseOutputLabelNames: true
-    ssl: false
-    rules:
-    - pattern : 'kafka.rest<type=jetty-metrics>([^:]+):'
-      name: "cp_kafka_rest_jetty_metrics_$1"
-    - pattern : 'kafka.rest<type=jersey-metrics>([^:]+):'
-      name: "cp_kafka_rest_jersey_metrics_$1"
----
+  name: broker-config
 apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cp-kafka-jmx-configmap
-  labels:
-    app: cp-kafka
 data:
-  jmx-kafka-prometheus.yml: |+
-    jmxUrl: service:jmx:rmi:///jndi/rmi://localhost:5555/jmxrmi
-    lowercaseOutputName: true
-    lowercaseOutputLabelNames: true
-    ssl: false
-    rules:
-    - pattern : kafka.server<type=ReplicaManager, name=(.+)><>(Value|OneMinuteRate)
-      name: "cp_kafka_server_replicamanager_$1"
-    - pattern : kafka.controller<type=KafkaController, name=(.+)><>Value
-      name: "cp_kafka_controller_kafkacontroller_$1"
-    - pattern : kafka.server<type=BrokerTopicMetrics, name=(.+)><>OneMinuteRate
-      name: "cp_kafka_server_brokertopicmetrics_$1"
-    - pattern : kafka.network<type=RequestMetrics, name=RequestsPerSec, request=(.+)><>OneMinuteRate
-      name: "cp_kafka_network_requestmetrics_requestspersec_$1"
-    - pattern : kafka.network<type=SocketServer, name=NetworkProcessorAvgIdlePercent><>Value
-      name: "cp_kafka_network_socketserver_networkprocessoravgidlepercent"
-    - pattern : kafka.server<type=ReplicaFetcherManager, name=MaxLag, clientId=(.+)><>Value
-      name: "cp_kafka_server_replicafetchermanager_maxlag_$1"
-    - pattern : kafka.server<type=KafkaRequestHandlerPool, name=RequestHandlerAvgIdlePercent><>OneMinuteRate
-      name: "cp_kafka_kafkarequesthandlerpool_requesthandleravgidlepercent"
-    - pattern : kafka.controller<type=ControllerStats, name=(.+)><>OneMinuteRate
-      name: "cp_kafka_controller_controllerstats_$1"
-    - pattern : kafka.server<type=SessionExpireListener, name=(.+)><>OneMinuteRate
-      name: "cp_kafka_server_sessionexpirelistener_$1"
+  init.sh: |-
+    #!/bin/bash
+    set -e
+    set -x
+    cp /etc/kafka-configmap/log4j.properties /etc/kafka/
+    KAFKA_BROKER_ID=${HOSTNAME##*-}
+    SEDS=("s/#init#broker.id=#init#/broker.id=$KAFKA_BROKER_ID/")
+    LABELS="kafka-broker-id=$KAFKA_BROKER_ID"
+    ANNOTATIONS=""
+    hash kubectl 2>/dev/null || {
+      SEDS+=("s/#init#broker.rack=#init#/#init#broker.rack=# kubectl not found in path/")
+    } && {
+      ZONE=$(kubectl get node "$NODE_NAME" -o=go-template='{{index .metadata.labels "failure-domain.beta.kubernetes.io/zone"}}')
+      if [ "x$ZONE" == "x<no value>" ]; then
+        SEDS+=("s/#init#broker.rack=#init#/#init#broker.rack=# zone label not found for node $NODE_NAME/")
+      else
+        SEDS+=("s/#init#broker.rack=#init#/broker.rack=$ZONE/")
+        LABELS="$LABELS kafka-broker-rack=$ZONE"
+      fi
+      [ -z "$ADVERTISE_ADDR" ] && echo "ADVERTISE_ADDR is empty, will advertise detected DNS name"
+      OUTSIDE_HOST=$(kubectl get node "$NODE_NAME" -o jsonpath='{.status.addresses[?(@.type=="InternalIP")].address}')
+      OUTSIDE_PORT=$((32400 + ${KAFKA_BROKER_ID}))
+      SEDS+=("s|#init#advertised.listeners=PLAINTEXT://#init#|advertised.listeners=PLAINTEXT://${ADVERTISE_ADDR}:9092,OUTSIDE://${OUTSIDE_HOST}:${OUTSIDE_PORT}|")
+      ANNOTATIONS="$ANNOTATIONS kafka-listener-outside-host=$OUTSIDE_HOST kafka-listener-outside-port=$OUTSIDE_PORT"
+      if [ ! -z "$LABELS" ]; then
+        kubectl -n $POD_NAMESPACE label pod $POD_NAME $LABELS || echo "Failed to label $POD_NAMESPACE.$POD_NAME - RBAC issue?"
+      fi
+      if [ ! -z "$ANNOTATIONS" ]; then
+        kubectl -n $POD_NAMESPACE annotate pod $POD_NAME $ANNOTATIONS || echo "Failed to annotate $POD_NAMESPACE.$POD_NAME - RBAC issue?"
+      fi
+    }
+    printf '%s\n' "${SEDS[@]}" | sed -f - /etc/kafka-configmap/server.properties > /etc/kafka/server.properties.tmp
+    [ $? -eq 0 ] && mv /etc/kafka/server.properties.tmp /etc/kafka/server.properties
+    ln -s /etc/kafka/server.properties /etc/kafka/server.properties.$POD_NAME
+  server.properties: |-
+    ############################# Log Basics #############################
+    # A comma seperated list of directories under which to store log files
+    # Overrides log.dir
+    log.dirs=/var/lib/kafka/data/topics
+    # The default number of log partitions per topic. More partitions allow greater
+    # parallelism for consumption, but this will also result in more files across
+    # the brokers.
+    num.partitions=12
+    default.replication.factor=3
+    min.insync.replicas=2
+    auto.create.topics.enable=false
+    # The number of threads per data directory to be used for log recovery at startup and flushing at shutdown.
+    # This value is recommended to be increased for installations with data dirs located in RAID array.
+    #num.recovery.threads.per.data.dir=1
+    ############################# Server Basics #############################
+    # The id of the broker. This must be set to a unique integer for each broker.
+    #init#broker.id=#init#
+    #init#broker.rack=#init#
+    ############################# Socket Server Settings #############################
+    # The address the socket server listens on. It will get the value returned from 
+    # java.net.InetAddress.getCanonicalHostName() if not configured.
+    #   FORMAT:
+    #     listeners = listener_name://host_name:port
+    #   EXAMPLE:
+    #     listeners = PLAINTEXT://your.host.name:9092
+    #listeners=PLAINTEXT://:9092
+    listeners=PLAINTEXT://:9092,OUTSIDE://:9094
+    # Hostname and port the broker will advertise to producers and consumers. If not set, 
+    # it uses the value for "listeners" if configured.  Otherwise, it will use the value
+    # returned from java.net.InetAddress.getCanonicalHostName().
+    #advertised.listeners=PLAINTEXT://your.host.name:9092
+    #init#advertised.listeners=PLAINTEXT://#init#
+    # Maps listener names to security protocols, the default is for them to be the same. See the config documentation for more details
+    #listener.security.protocol.map=PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL
+    listener.security.protocol.map=PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL,OUTSIDE:PLAINTEXT
+    inter.broker.listener.name=PLAINTEXT
+    # The number of threads that the server uses for receiving requests from the network and sending responses to the network
+    #num.network.threads=3
+    # The number of threads that the server uses for processing requests, which may include disk I/O
+    #num.io.threads=8
+    # The send buffer (SO_SNDBUF) used by the socket server
+    #socket.send.buffer.bytes=102400
+    # The receive buffer (SO_RCVBUF) used by the socket server
+    #socket.receive.buffer.bytes=102400
+    # The maximum size of a request that the socket server will accept (protection against OOM)
+    #socket.request.max.bytes=104857600
+    ############################# Internal Topic Settings  #############################
+    # The replication factor for the group metadata internal topics "__consumer_offsets" and "__transaction_state"
+    # For anything other than development testing, a value greater than 1 is recommended for to ensure availability such as 3.
+    #offsets.topic.replication.factor=1
+    #transaction.state.log.replication.factor=1
+    #transaction.state.log.min.isr=1
+    ############################# Log Flush Policy #############################
+    # Messages are immediately written to the filesystem but by default we only fsync() to sync
+    # the OS cache lazily. The following configurations control the flush of data to disk.
+    # There are a few important trade-offs here:
+    #    1. Durability: Unflushed data may be lost if you are not using replication.
+    #    2. Latency: Very large flush intervals may lead to latency spikes when the flush does occur as there will be a lot of data to flush.
+    #    3. Throughput: The flush is generally the most expensive operation, and a small flush interval may lead to excessive seeks.
+    # The settings below allow one to configure the flush policy to flush data after a period of time or
+    # every N messages (or both). This can be done globally and overridden on a per-topic basis.
+    # The number of messages to accept before forcing a flush of data to disk
+    #log.flush.interval.messages=10000
+    # The maximum amount of time a message can sit in a log before we force a flush
+    #log.flush.interval.ms=1000
+    ############################# Log Retention Policy #############################
+    # The following configurations control the disposal of log segments. The policy can
+    # be set to delete segments after a period of time, or after a given size has accumulated.
+    # A segment will be deleted whenever *either* of these criteria are met. Deletion always happens
+    # from the end of the log.
+    # https://cwiki.apache.org/confluence/display/KAFKA/KIP-186%3A+Increase+offsets+retention+default+to+7+days
+    offsets.retention.minutes=10080
+    # The minimum age of a log file to be eligible for deletion due to age
+    log.retention.hours=-1
+    # A size-based retention policy for logs. Segments are pruned from the log unless the remaining
+    # segments drop below log.retention.bytes. Functions independently of log.retention.hours.
+    #log.retention.bytes=1073741824
+    # The maximum size of a log segment file. When this size is reached a new log segment will be created.
+    #log.segment.bytes=1073741824
+    # The interval at which log segments are checked to see if they can be deleted according
+    # to the retention policies
+    #log.retention.check.interval.ms=300000
+    ############################# Zookeeper #############################
+    # Zookeeper connection string (see zookeeper docs for details).
+    # This is a comma separated host:port pairs, each corresponding to a zk
+    # server. e.g. "127.0.0.1:3000,127.0.0.1:3001,127.0.0.1:3002".
+    # You can also append an optional chroot string to the urls to specify the
+    # root directory for all kafka znodes.
+    zookeeper.connect=zk-headless:2181
+    # Timeout in ms for connecting to zookeeper
+    #zookeeper.connection.timeout.ms=18000
+    ############################# Group Coordinator Settings #############################
+    # The following configuration specifies the time, in milliseconds, that the GroupCoordinator will delay the initial consumer rebalance.
+    # The rebalance will be further delayed by the value of group.initial.rebalance.delay.ms as new members join the group, up to a maximum of max.poll.interval.ms.
+    # The default value for this is 3 seconds.
+    # We override this to 0 here as it makes for a better out-of-the-box experience for development and testing.
+    # However, in production environments the default value of 3 seconds is more suitable as this will help to avoid unnecessary, and potentially expensive, rebalances during application startup.
+    #group.initial.rebalance.delay.ms=0
+  log4j.properties: |-
+    # Unspecified loggers and loggers with additivity=true output to server.log and stdout
+    # Note that INFO only applies to unspecified loggers, the log level of the child logger is used otherwise
+    log4j.rootLogger=INFO, stdout
+    log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+    log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+    log4j.appender.stdout.layout.ConversionPattern=[%d] %p %m (%c)%n
+    log4j.appender.kafkaAppender=org.apache.log4j.DailyRollingFileAppender
+    log4j.appender.kafkaAppender.DatePattern='.'yyyy-MM-dd-HH
+    log4j.appender.kafkaAppender.File=${kafka.logs.dir}/server.log
+    log4j.appender.kafkaAppender.layout=org.apache.log4j.PatternLayout
+    log4j.appender.kafkaAppender.layout.ConversionPattern=[%d] %p %m (%c)%n
+    log4j.appender.stateChangeAppender=org.apache.log4j.DailyRollingFileAppender
+    log4j.appender.stateChangeAppender.DatePattern='.'yyyy-MM-dd-HH
+    log4j.appender.stateChangeAppender.File=${kafka.logs.dir}/state-change.log
+    log4j.appender.stateChangeAppender.layout=org.apache.log4j.PatternLayout
+    log4j.appender.stateChangeAppender.layout.ConversionPattern=[%d] %p %m (%c)%n
+    log4j.appender.requestAppender=org.apache.log4j.DailyRollingFileAppender
+    log4j.appender.requestAppender.DatePattern='.'yyyy-MM-dd-HH
+    log4j.appender.requestAppender.File=${kafka.logs.dir}/kafka-request.log
+    log4j.appender.requestAppender.layout=org.apache.log4j.PatternLayout
+    log4j.appender.requestAppender.layout.ConversionPattern=[%d] %p %m (%c)%n
+    log4j.appender.cleanerAppender=org.apache.log4j.DailyRollingFileAppender
+    log4j.appender.cleanerAppender.DatePattern='.'yyyy-MM-dd-HH
+    log4j.appender.cleanerAppender.File=${kafka.logs.dir}/log-cleaner.log
+    log4j.appender.cleanerAppender.layout=org.apache.log4j.PatternLayout
+    log4j.appender.cleanerAppender.layout.ConversionPattern=[%d] %p %m (%c)%n
+    log4j.appender.controllerAppender=org.apache.log4j.DailyRollingFileAppender
+    log4j.appender.controllerAppender.DatePattern='.'yyyy-MM-dd-HH
+    log4j.appender.controllerAppender.File=${kafka.logs.dir}/controller.log
+    log4j.appender.controllerAppender.layout=org.apache.log4j.PatternLayout
+    log4j.appender.controllerAppender.layout.ConversionPattern=[%d] %p %m (%c)%n
+    log4j.appender.authorizerAppender=org.apache.log4j.DailyRollingFileAppender
+    log4j.appender.authorizerAppender.DatePattern='.'yyyy-MM-dd-HH
+    log4j.appender.authorizerAppender.File=${kafka.logs.dir}/kafka-authorizer.log
+    log4j.appender.authorizerAppender.layout=org.apache.log4j.PatternLayout
+    log4j.appender.authorizerAppender.layout.ConversionPattern=[%d] %p %m (%c)%n
+    # Change the two lines below to adjust ZK client logging
+    log4j.logger.org.I0Itec.zkclient.ZkClient=INFO
+    log4j.logger.org.apache.zookeeper=INFO
+    # Change the two lines below to adjust the general broker logging level (output to server.log and stdout)
+    log4j.logger.kafka=INFO
+    log4j.logger.org.apache.kafka=INFO
+    # Change to DEBUG or TRACE to enable request logging
+    log4j.logger.kafka.request.logger=WARN, requestAppender
+    log4j.additivity.kafka.request.logger=false
+    # Uncomment the lines below and change log4j.logger.kafka.network.RequestChannel$ to TRACE for additional output
+    # related to the handling of requests
+    #log4j.logger.kafka.network.Processor=TRACE, requestAppender
+    #log4j.logger.kafka.server.KafkaApis=TRACE, requestAppender
+    #log4j.additivity.kafka.server.KafkaApis=false
+    log4j.logger.kafka.network.RequestChannel$=WARN, requestAppender
+    log4j.additivity.kafka.network.RequestChannel$=false
+    log4j.logger.kafka.controller=TRACE, controllerAppender
+    log4j.additivity.kafka.controller=false
+    log4j.logger.kafka.log.LogCleaner=INFO, cleanerAppender
+    log4j.additivity.kafka.log.LogCleaner=false
+    log4j.logger.state.change.logger=TRACE, stateChangeAppender
+    log4j.additivity.state.change.logger=false
+    # Change to DEBUG to enable audit log for the authorizer
+    log4j.logger.kafka.authorizer.logger=WARN, authorizerAppender
+    log4j.additivity.kafka.authorizer.logger=false
+
+
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cp-ksql-server-jmx-configmap
-  labels:
-    app: cp-ksql-server
-data:
-  jmx-ksql-server-prometheus.yml: |+
-    jmxUrl: service:jmx:rmi:///jndi/rmi://localhost:5555/jmxrmi
-    lowercaseOutputName: true
-    lowercaseOutputLabelNames: true
-    ssl: false
-    rules:
-    - pattern : 'io.confluent.ksql.metrics<type=ksql-engine-query-stats>([^:]+):'
-      name: "cp_ksql_server_metrics_$1"
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cp-ksql-server-ksql-queries-configmap
-  labels:
-    app: cp-ksql-server
-data:
-  queries.sql: |-
-    -- From http://docs.confluent.io/current/ksql/docs/tutorials/basics-docker.html#create-a-stream-and-table
-    
-    -- Create a stream pageviews_original from the Kafka topic pageviews, specifying the value_format of DELIMITED
-    CREATE STREAM pageviews_original (viewtime bigint, userid varchar, pageid varchar) WITH (kafka_topic='pageviews', value_format='DELIMITED');
-    
-    -- Create a table users_original from the Kafka topic users, specifying the value_format of JSON
-    CREATE TABLE users_original (registertime BIGINT, gender VARCHAR, regionid VARCHAR, userid VARCHAR) WITH (kafka_topic='users', value_format='JSON', key = 'userid');
-    
-    -- Create a persistent query by using the CREATE STREAM keywords to precede the SELECT statement
-    CREATE STREAM pageviews_enriched AS SELECT users_original.userid AS userid, pageid, regionid, gender FROM pageviews_original LEFT JOIN users_original ON pageviews_original.userid = users_original.userid;
-    
-    -- Create a new persistent query where a condition limits the streams content, using WHERE
-    CREATE STREAM pageviews_female AS SELECT * FROM pageviews_enriched WHERE gender = 'FEMALE';
-    
-    -- Create a new persistent query where another condition is met, using LIKE
-    CREATE STREAM pageviews_female_like_89 WITH (kafka_topic='pageviews_enriched_r8_r9') AS SELECT * FROM pageviews_female WHERE regionid LIKE '%_8' OR regionid LIKE '%_9';
-    
-    -- Create a new persistent query that counts the pageviews for each region and gender combination in a tumbling window of 30 seconds when the count is greater than one
-    CREATE TABLE pageviews_regions WITH (VALUE_FORMAT='avro') AS SELECT gender, regionid , COUNT(*) AS numusers FROM pageviews_enriched WINDOW TUMBLING (size 30 second) GROUP BY gender, regionid HAVING COUNT(*) > 1;
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cp-schema-registry-jmx-configmap
-  labels:
-    app: cp-schema-registry
-data:
-  jmx-schema-registry-prometheus.yml: |+
-    jmxUrl: service:jmx:rmi:///jndi/rmi://localhost:5555/jmxrmi
-    lowercaseOutputName: true
-    lowercaseOutputLabelNames: true
-    ssl: false
-    rules:
-    - pattern : 'kafka.schema.registry<type=jetty-metrics>([^:]+):'
-      name: "cp_kafka_schema_registry_jetty_metrics_$1"
-    - pattern : 'kafka.schema.registry<type=master-slave-role>([^:]+):'
-      name: "cp_kafka_schema_registry_master_slave_role"
-    - pattern : 'kafka.schema.registry<type=jersey-metrics>([^:]+):'
-      name: "cp_kafka_schema_registry_jersey_metrics_$1"
----
+
 apiVersion: v1
 kind: Service
 metadata:
-  name: cp-control-center
-  labels:
-    app: cp-control-center
+  name: kafka
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
 spec:
+  publishNotReadyAddresses: true
   ports:
-    - name: cc-http
-      port: 9021
-  selector:
-    app: cp-control-center
----
-#apiVersion: v1
-#kind: Service
-#metadata:
-#  name: cp-kafka-connect
-#  labels:
-#    app: cp-kafka-connect
-#spec:
-#  ports:
-#    - name: kafka-connect
-#      port: 8083
-#  selector:
-#    app: cp-kafka-connect
-#---
-apiVersion: v1
-kind: Service
-metadata:
-  name: cp-kafka-rest
-  labels:
-    app: cp-kafka-rest
-spec:
-  ports:
-    - name: rest-proxy
-      port: 8082
-  selector:
-    app: cp-kafka-rest
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: cp-kafka-headless
-  labels:
-    app: cp-kafka
-spec:
-  ports:
-    - port: 9092
-      name: broker
+  - port: 9092
+  # [podname].broker.kafka.svc.cluster.local
   clusterIP: None
   selector:
-    app: cp-kafka
+    app: kafka
+
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: cp-kafka
-  labels:
-    app: cp-kafka
+  name: bootstrap
+  namespace: kafka
 spec:
   ports:
-    - port: 9092
-      name: broker
+  - port: 9092
   selector:
-    app: cp-kafka
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: cp-ksql-server
-  labels:
-    app: cp-ksql-server
-spec:
-  ports:
-      - name: ksql-server
-        port: 8088
-  selector:
-    app: cp-ksql-server
----
-#apiVersion: v1
-#kind: Service
-#metadata:
-#  name: cp-schema-registry
-#  labels:
-#    app: cp-schema-registry
-#spec:
-#  ports:
-#    - name: schema-registry
-#      port: 8081
-#  selector:
-#    app: cp-schema-registry
-#---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: cp-control-center
-  labels:
-    app: cp-control-center
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: cp-control-center
-  template:
-    metadata:
-      labels:
-        app: cp-control-center
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "5556"
-    spec:
-      containers:
-        - name: cp-control-center
-          image: "confluentinc/cp-enterprise-control-center:5.2.0"
-          imagePullPolicy: IfNotPresent
-          ports:
-            - name: cc-http
-              containerPort: 9021
-              protocol: TCP
-          resources:            {}
-          env:
-            - name: CONTROL_CENTER_BOOTSTRAP_SERVERS
-              value: PLAINTEXT://cp-kafka-headless:9092
-            - name: CONTROL_CENTER_ZOOKEEPER_CONNECT
-              value: 
-            - name: CONTROL_CENTER_CONNECT_CLUSTER
-              value: http://cp-kafka-connect:8083
-            - name: CONTROL_CENTER_KSQL_URL
-              value: http://cp-ksql-server:8088
-            - name: CONTROL_CENTER_KSQL_ADVERTISED_URL
-              value: http://cp-ksql-server:8088
-            - name: CONTROL_CENTER_SCHEMA_REGISTRY_URL
-              value: http://cp-schema-registry:8081
-            - name: KAFKA_HEAP_OPTS
-              value: "-Xms512M -Xmx512M"
-            - name: "CONTROL_CENTER_REPLICATION_FACTOR"
-              value: "3"
-#---
-#apiVersion: apps/v1
-#kind: Deployment
-#metadata:
-#  name: cp-kafka-connect
-#  labels:
-#    app: cp-kafka-connect
-#spec:
-#  replicas: 1
-#  selector:
-#    matchLabels:
-#      app: cp-kafka-connect
-#  template:
-#    metadata:
-#      labels:
-#        app: cp-kafka-connect
-#      annotations:
-#        prometheus.io/scrape: "true"
-#        prometheus.io/port: "5556"
-#    spec:
-#      containers:
-#        - name: prometheus-jmx-exporter
-#          #image: "solsson/kafka-prometheus-jmx-exporter@sha256:6f82e2b0464f50da8104acd7363fb9b995001ddff77d248379f8788e78946143"
-#          imagePullPolicy: "IfNotPresent"
-#          command:
-#          - java
-#          - -XX:+UnlockExperimentalVMOptions
-#          - -XX:+UseCGroupMemoryLimitForHeap
-#          - -XX:MaxRAMFraction=1
-#          - -XshowSettings:vm
-#          - -jar
-#          - jmx_prometheus_httpserver.jar
-#          - "5556"
-#          - /etc/jmx-kafka-connect/jmx-kafka-connect-prometheus.yml
-#          ports:
-#          - containerPort: 5556
-#          resources:
-#            {}
-#          volumeMounts:
-#          - name: jmx-config
-#            mountPath: /etc/jmx-kafka-connect
-#        - name: cp-kafka-connect-server
-#          image: "confluentinc/cp-kafka-connect:5.3.1"
-#          imagePullPolicy: "IfNotPresent"
-#          ports:
-#            - name: kafka-connect
-#              containerPort: 8083
-#              protocol: TCP
-#            - containerPort: 5555
-#              name: jmx
-#          resources:
-#            {}
-#          env:
-#            - name: CONNECT_REST_ADVERTISED_HOST_NAME
-#              valueFrom:
-#                fieldRef:
-#                  fieldPath: status.podIP
-#            - name: CONNECT_BOOTSTRAP_SERVERS
-#              value: PLAINTEXT://cp-kafka-headless:9092
-#            - name: CONNECT_GROUP_ID
-#              value: RELEASE-NAME
-#            - name: CONNECT_CONFIG_STORAGE_TOPIC
-#              value: cp-kafka-connect-config
-#            - name: CONNECT_OFFSET_STORAGE_TOPIC
-#              value: cp-kafka-connect-offset
-#            - name: CONNECT_STATUS_STORAGE_TOPIC
-#              value: cp-kafka-connect-status
-#            - name: CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL
-#              value: http://cp-schema-registry:8081
-#            - name: CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL
-#              value: http://cp-schema-registry:8081
-#            - name: KAFKA_HEAP_OPTS
-#              value: "-Xms512M -Xmx512M"
-#            - name: "CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR"
-#              value: "3"
-#            - name: "CONNECT_INTERNAL_KEY_CONVERTER"
-#              value: "org.apache.kafka.connect.json.JsonConverter"
-#            - name: "CONNECT_INTERNAL_VALUE_CONVERTER"
-#              value: "org.apache.kafka.connect.json.JsonConverter"
-#            - name: "CONNECT_KEY_CONVERTER"
-#              value: "io.confluent.connect.avro.AvroConverter"
-#            - name: "CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE"
-#              value: "false"
-#            - name: "CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR"
-#              value: "3"
-#            - name: "CONNECT_PLUGIN_PATH"
-#              value: "/usr/share/java,/usr/share/confluent-hub-components"
-#            - name: "CONNECT_STATUS_STORAGE_REPLICATION_FACTOR"
-#              value: "3"
-#            - name: "CONNECT_VALUE_CONVERTER"
-#              value: "io.confluent.connect.avro.AvroConverter"
-#            - name: "CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE"
-#              value: "false"
-#            - name: KAFKA_JMX_PORT
-#              value: "5555"
-#      volumes:
-#      - name: jmx-config
-#        configMap:
-#          name: cp-kafka-connect-jmx-configmap
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: cp-kafka-rest
-  labels:
-    app: cp-kafka-rest
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: cp-kafka-rest
-  template:
-    metadata:
-      labels:
-        app: cp-kafka-rest
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "5556"
-    spec:
-      containers:
-        - name: prometheus-jmx-exporter
-          image: "solsson/kafka-prometheus-jmx-exporter@sha256:6f82e2b0464f50da8104acd7363fb9b995001ddff77d248379f8788e78946143"
-          imagePullPolicy: "IfNotPresent"
-          command:
-          - java
-          - -XX:+UnlockExperimentalVMOptions
-          - -XX:+UseCGroupMemoryLimitForHeap
-          - -XX:MaxRAMFraction=1
-          - -XshowSettings:vm
-          - -jar
-          - jmx_prometheus_httpserver.jar
-          - "5556"
-          - /etc/jmx-kafka-rest/jmx-kafka-rest-prometheus.yml
-          ports:
-          - containerPort: 5556
-          resources:
-            {}
-          volumeMounts:
-          - name: jmx-config
-            mountPath: /etc/jmx-kafka-rest
-        - name: cp-kafka-rest-server
-          image: "confluentinc/cp-kafka-rest:5.3.1"
-          imagePullPolicy: "IfNotPresent"
-          ports:
-            - name: rest-proxy
-              containerPort: 8082
-              protocol: TCP
-            - containerPort: 5555
-              name: jmx
-          resources:
-            {}
-          env:
-          - name: KAFKA_REST_HOST_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: status.podIP
-          - name: KAFKA_REST_ZOOKEEPER_CONNECT
-            value: zk-headless:2181
-          - name: KAFKA_REST_SCHEMA_REGISTRY_URL
-            value: http://cp-schema-registry:8081
-          - name: KAFKAREST_HEAP_OPTS
-            value: "-Xms512M -Xmx512M"
-          - name: KAFKA_REST_JMX_PORT
-            value: "5555"
-      volumes:
-      - name: jmx-config
-        configMap:
-          name: cp-kafka-rest-jmx-configmap
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: cp-ksql-server
-  labels:
-    app: cp-ksql-server
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: cp-ksql-server
-  template:
-    metadata:
-      labels:
-        app: cp-ksql-server
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "5556"
-    spec:
-      containers:
-        - name: prometheus-jmx-exporter
-          image: "solsson/kafka-prometheus-jmx-exporter@sha256:6f82e2b0464f50da8104acd7363fb9b995001ddff77d248379f8788e78946143"
-          imagePullPolicy: "IfNotPresent"
-          command:
-          - java
-          - -XX:+UnlockExperimentalVMOptions
-          - -XX:+UseCGroupMemoryLimitForHeap
-          - -XX:MaxRAMFraction=1
-          - -XshowSettings:vm
-          - -jar
-          - jmx_prometheus_httpserver.jar
-          - "5556"
-          - /etc/jmx-ksql-server/jmx-ksql-server-prometheus.yml
-          ports:
-          - containerPort: 5556
-          resources:
-            {}
-          volumeMounts:
-          - name: jmx-config
-            mountPath: /etc/jmx-ksql-server
-        - name: cp-ksql-server
-          image: "confluentinc/cp-ksql-server:5.3.1"
-          imagePullPolicy: "IfNotPresent"
-          ports:
-            - name: server
-              containerPort: 8088
-              protocol: TCP
-            - containerPort: 5555
-              name: jmx
-          resources:
-            {}
-          volumeMounts:
-          env:
-          - name: KSQL_BOOTSTRAP_SERVERS
-            value: PLAINTEXT://cp-kafka-headless:9092
-          - name: KSQL_KSQL_SERVICE_ID
-            value: RELEASE-NAME
-          - name: KSQL_KSQL_SCHEMA_REGISTRY_URL
-            value: http://cp-schema-registry:8081
-          - name: KSQL_HEAP_OPTS
-            value: "-Xms512M -Xmx512M"
-          - name: KSQL_LISTENERS
-            value: http://0.0.0.0:8088
-          - name: KSQL_JMX_PORT
-            value: "5555"
-      volumes:
-      - name: jmx-config
-        configMap:
-          name: cp-ksql-server-jmx-configmap
----
-#apiVersion: apps/v1
-#kind: Deployment
-#metadata:
-#  name: cp-schema-registry
-#  labels:
-#    app: cp-schema-registry
-#spec:
-#  replicas: 1
-#  selector:
-#    matchLabels:
-#      app: cp-schema-registry
-#  template:
-#    metadata:
-#      labels:
-#        app: cp-schema-registry
-#     annotations:
-#       prometheus.io/scrape: "true"
-#       prometheus.io/port: "5556"
-#   spec:
-#     containers:
-#       - name: prometheus-jmx-exporter
-#         image: "solsson/kafka-prometheus-jmx-exporter"
-#         imagePullPolicy: "IfNotPresent"
-#         command:
-#         - java
-#         - -XX:+UnlockExperimentalVMOptions
-#         - -XX:+UseCGroupMemoryLimitForHeap
-#         - -XX:MaxRAMFraction=1
-#         - -XshowSettings:vm
-#         - -jar
-#         - jmx_prometheus_httpserver.jar
-#         - "5556"
-#         - /etc/jmx-schema-registry/jmx-schema-registry-prometheus.yml
-#         ports:
-#         - containerPort: 5556
-#         resources:
-#           {}
-#         volumeMounts:
-#         - name: jmx-config
-#           mountPath: /etc/jmx-schema-registry
-#       - name: cp-schema-registry-server
-#         image: "confluentinc/cp-schema-registry:5.3.1"
-#         imagePullPolicy: "IfNotPresent"
-#         ports:
-#           - name: schema-registry
-#             containerPort: 8081
-#             protocol: TCP
-#           - containerPort: 5555
-#             name: jmx
-#         resources:
-#           {}
-#         env:
-#         - name: SCHEMA_REGISTRY_HOST_NAME
-#           valueFrom:
-#             fieldRef:
-#               fieldPath: status.podIP
-#         - name: SCHEMA_REGISTRY_LISTENERS
-#           value: http://0.0.0.0:8081
-#         - name: SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
-#           value: PLAINTEXT://cp-kafka-headless:9092
-#         - name: SCHEMA_REGISTRY_KAFKASTORE_GROUP_ID
-#           value: RELEASE-NAME
-#         - name: SCHEMA_REGISTRY_MASTER_ELIGIBILITY
-#           value: "true"
-#         - name: SCHEMA_REGISTRY_HEAP_OPTS
-#           value: "-Xms512M -Xmx512M"
-#         
-#         - name: JMX_PORT
-#           value: "5555"
-#     volumes:
-#     - name: jmx-config
-#       configMap:
-#         name: cp-schema-registry-jmx-configmap
+    app: kafka
+
+
+
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: cp-kafka
-  labels:
-    app: cp-kafka
+  name: kafka
 spec:
   selector:
     matchLabels:
-      app: cp-kafka
-  serviceName: cp-kafka-headless
-  podManagementPolicy: OrderedReady
+      app: kafka
+  serviceName: "kafka"
   replicas: 3
   updateStrategy:
     type: RollingUpdate
+  podManagementPolicy: Parallel
   template:
     metadata:
       labels:
-        app: cp-kafka
+        app: kafka
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "5556"
     spec:
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                  - key: "app"
-                    operator: In
-                    values:
-                    - cp-kafka
-              topologyKey: "kubernetes.io/hostname"
-      containers:
-      - name: prometheus-jmx-exporter
-        image: "solsson/kafka-prometheus-jmx-exporter@sha256:6f82e2b0464f50da8104acd7363fb9b995001ddff77d248379f8788e78946143"
-        imagePullPolicy: "IfNotPresent"
-        command:
-        - java
-        - -XX:+UnlockExperimentalVMOptions
-        - -XX:+UseCGroupMemoryLimitForHeap
-        - -XX:MaxRAMFraction=1
-        - -XshowSettings:vm
-        - -jar
-        - jmx_prometheus_httpserver.jar
-        - "5556"
-        - /etc/jmx-kafka/jmx-kafka-prometheus.yml
-        ports:
-        - containerPort: 5556
-        resources:
-          {}
-        volumeMounts:
-        - name: jmx-config
-          mountPath: /etc/jmx-kafka
-      - name: cp-kafka-broker
-        image: "confluentinc/cp-enterprise-kafka:5.3.2"
-        imagePullPolicy: "IfNotPresent"
-        ports:
-        - containerPort: 9092
-          name: kafka
-        - containerPort: 5555
-          name: jmx
-        resources:
-          {}
+      terminationGracePeriodSeconds: 30
+      initContainers:
+      - name: init-config
+        image: solsson/kafka-initutils@sha256:f6d9850c6c3ad5ecc35e717308fddb47daffbde18eb93e98e031128fe8b899ef
         env:
-        - name: POD_IP
+        - name: NODE_NAME
           valueFrom:
             fieldRef:
-              fieldPath: status.podIP
-        - name: HOST_IP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.hostIP
+              fieldPath: spec.nodeName
         - name: POD_NAME
           valueFrom:
             fieldRef:
@@ -671,68 +306,83 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        - name: KAFKA_HEAP_OPTS
-          value: -Xms512M -Xmx512M
-        - name: KAFKA_ZOOKEEPER_CONNECT
-          value: "zk-headless:2181"
-        - name: KAFKA_LOG_DIRS
-          value: "/opt/kafka/data-0/logs"
-        - name: KAFKA_METRIC_REPORTERS
-          value: "io.confluent.metrics.reporter.ConfluentMetricsReporter"
-        - name: CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS
-          value: "PLAINTEXT://cp-kafka-headless:9092"
-        - name: "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP"
-          value: "PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT"
-        - name: "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR"
-          value: "3"
-        - name: KAFKA_JMX_PORT
-          value: "5555"
-        # This is required because the Downward API does not yet support identification of
-        # pod numbering in statefulsets. Thus, we are required to specify a command which
-        # allows us to extract the pod ID for usage as the Kafka Broker ID.
-        # See: https://github.com/kubernetes/kubernetes/issues/31218
-        command:
-        - sh
-        - -exc
-        - |
-          export KAFKA_BROKER_ID=${HOSTNAME##*-} && \
-          export KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://${POD_NAME}.cp-kafka-headless.${POD_NAMESPACE}:9092,EXTERNAL://${HOST_IP}:$((31090 + ${KAFKA_BROKER_ID})) && \
-          exec /etc/confluent/docker/run
+        command: ['/bin/bash', '/etc/kafka-configmap/init.sh']
         volumeMounts:
-          - name: datadir-0
-            mountPath: /opt/kafka/data-0
+        - name: configmap
+          mountPath: /etc/kafka-configmap
+        - name: config
+          mountPath: /etc/kafka
+        - name: extensions
+          mountPath: /opt/kafka/libs/extensions
+      containers:
+      - name: broker
+        image: solsson/kafka:2.4.1@sha256:79761e15919b4fe9857ec00313c9df799918ad0340b684c0163ab7035907bb5a
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: CLASSPATH
+          value: /opt/kafka/libs/extensions/*
+        - name: KAFKA_LOG4J_OPTS
+          value: -Dlog4j.configuration=file:/etc/kafka/log4j.properties
+        - name: JMX_PORT
+          value: "5555"
+        ports:
+        - name: inside
+          containerPort: 9092
+        - name: outside
+          containerPort: 9094
+        - name: jmx
+          containerPort: 5555
+        command:
+        - ./bin/kafka-server-start.sh
+        - /etc/kafka/server.properties.$(POD_NAME)
+        lifecycle:
+          preStop:
+            exec:
+             command: ["sh", "-ce", "kill -s TERM 1; while $(kill -0 1 2>/dev/null); do sleep 1; done"]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            # This limit was intentionally set low as a reminder that
+            # the entire Yolean/kubernetes-kafka is meant to be tweaked
+            # before you run production workloads
+            memory: 600Mi
+        readinessProbe:
+          tcpSocket:
+            port: 9092
+          timeoutSeconds: 1
+        volumeMounts:
+        - name: config
+          mountPath: /etc/kafka
+        - name: data
+          mountPath: /var/lib/kafka/data
+        - name: extensions
+          mountPath: /opt/kafka/libs/extensions
       volumes:
-      - name: jmx-config
+      - name: configmap
         configMap:
-          name: cp-kafka-jmx-configmap
-      - name: datadir-0
-        emptyDir:
-          sizeLimit: "1Gi"
----
-#apiVersion: v1
-#kind: Pod
-#metadata:
-#  name: "canary"
-#  annotations:
-#    "helm.sh/hook": test-success
-#    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
-#spec:
-#  containers:
-#  - name: canary
-#    image: "confluentinc/cp-enterprise-kafka:5.3.1"
-#    imagePullPolicy: "IfNotPresent"
-#    command:
-#    - sh
-#    - -c
-#    - |
-#      # Delete the topic if it exists
-#      kafka-topics --zookeeper zk-headless:2181 --topic cp-kafka-canary-topic --delete --if-exists
-#      # Create the topic
-#      kafka-topics --zookeeper zk-headless:2181 --topic cp-kafka-canary-topic --create --partitions 1 --replication-factor 1 --if-not-exists && \
-#      # Create a message
-#      MESSAGE="`date -u`" && \
-#      # Produce a test message to the topic
-#      echo "$MESSAGE" | kafka-console-producer --broker-list cp-kafka:9092 --topic cp-kafka-canary-topic && \
-#      # Consume a test message from the topic
-#      kafka-console-consumer --bootstrap-server cp-kafka-headless:9092 --topic cp-kafka-canary-topic --from-beginning --timeout-ms 2000 | grep "$MESSAGE"
-#  restartPolicy: Never
+          name: broker-config
+      - name: config
+        emptyDir: {}
+      - name: extensions
+        emptyDir: {}
+      - name: data
+        emptyDir: {}
+  #volumeClaimTemplates:
+  #- metadata:
+  #    name: data
+  #  spec:
+  #    accessModes: [ "ReadWriteOnce" ]
+  #    resources:
+  #      requests:
+  #       storage: 10Gi
+
+
