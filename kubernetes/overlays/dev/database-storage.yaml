@@ -12,22 +12,22 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    #path: /scratch/daq/dev/mongo-0
-    path: /gpfs/slac/cryo/fs1/daq/dev/mongo/mongo-0
+    path: /scratch/daq/dev/mongo-0
+    #path: /gpfs/slac/cryo/fs1/daq/dev/mongo/mongo-0
   nodeAffinity:
     required:
       nodeSelectorTerms:
       - matchExpressions:
-        #- key: kubernetes.io/hostname
-        #  operator: In
-        #  values:
-        #  - ocio-gpu02
-        - key: storage/cryoem
+        - key: kubernetes.io/hostname
           operator: In
           values:
-          - 'true'
+          - ocio-gpu02
+        #- key: storage/cryoem
+        #  operator: In
+        #  values:
+        #  - 'true'
 
----
+#---
 kind: PersistentVolume
 apiVersion: v1
 metadata:
@@ -42,16 +42,16 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    #path: /scratch/daq/dev/mongo-1
+   #path: /scratch/daq/dev/mongo-1
     path: /gpfs/slac/cryo/fs1/daq/dev/mongo/mongo-1
   nodeAffinity:
     required:
       nodeSelectorTerms:
       - matchExpressions:
-        #- key: kubernetes.io/hostname
-        #  operator: In
-        #  values:
-        #  - os-dev02
+       #- key: kubernetes.io/hostname
+       #  operator: In
+       #  values:
+       #  - os-dev02
         - key: storage/cryoem
           operator: In
           values:
