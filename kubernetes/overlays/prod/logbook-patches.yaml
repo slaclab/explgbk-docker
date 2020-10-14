@@ -1,0 +1,23 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: explgbk
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+      - name: explgbk
+        env:
+          - name: LOGBOOK_SITE
+            value: CryoEM
+          - name: URAWI_EXPERIMENT_LOOKUP_URL
+            value: https://userportal.slac.stanford.edu/apps/urawi/ws/cryo_btsr_info
+          - name: NODE_ENV
+            value: dev
+          - name: MONGODB_URL
+            value: 'mongodb://mongo-0.mongo:27017,mongo-1.mongo:27017/?replicationSet=rs0'
+          - name: KAFKA_BOOTSTRAP_SERVER
+            value: kafka:9092
+
