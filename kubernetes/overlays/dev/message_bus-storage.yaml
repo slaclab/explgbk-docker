@@ -1,0 +1,74 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: cryoem-logbook-dev--kafka-0
+  labels:
+    type: local
+spec:
+  storageClassName: cryoem-logbook-dev--kafka
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /gpfs/slac/cryo/fs1/daq/dev/kafka/kafka-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: storage/cryoem
+          operator: In
+          values:
+          - 'true'
+
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: cryoem-logbook-dev--kafka-2
+  labels:
+    type: local
+spec:
+  storageClassName: cryoem-logbook-dev--kafka
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /gpfs/slac/cryo/fs1/daq/dev/kafka/kafka-2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: storage/cryoem
+          operator: In
+          values:
+          - 'true'
+
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: cryoem-logbook-dev--kafka-1
+  labels:
+    type: local
+spec:
+  storageClassName: cryoem-logbook-dev--kafka
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /opt/cryoem-logbook-dev/daq/dev/kafka/kafka-1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - os-ctrl01
+

@@ -1,0 +1,16 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+spec:
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+         storage: 1Gi
+      storageClassName: cryoem-logbook-dev--kafka
+

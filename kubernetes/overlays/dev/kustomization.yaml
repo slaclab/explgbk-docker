@@ -10,11 +10,13 @@ resources:
 - collab-listener.yaml
 - cryoem-storage.yaml
 - rbac.yaml
+- message_bus-storage.yaml
 
 patchesStrategicMerge:
 - storage-patches.yaml
 - logbook-patches.yaml
 #- nodeSelector-patches.yaml
+- message_bus-patches.yaml
 
 secretGenerator:
 - name: mongodb
