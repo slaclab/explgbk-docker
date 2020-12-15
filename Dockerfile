@@ -46,8 +46,8 @@ RUN npm install --global \
     plotly.js \
     popper.js \
     selectize \
-    socket.io \
-    socket.io-client \
+    socket.io@2.3.0 \
+    socket.io-client@2.3.0 \
     summernote \
     tempusdominus-bootstrap-4 \
     tempusdominus-core \

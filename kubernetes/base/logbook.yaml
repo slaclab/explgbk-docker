@@ -100,6 +100,6 @@ spec:
                 name: explgbk-reader
                 key: password
           - name: KAFKA_BOOTSTRAP_SERVER
-            value: cp-kafka:9092
+            value: kafka-0:9092,kafka-1:9092,kafka-2:9092
 
 

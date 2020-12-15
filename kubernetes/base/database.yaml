@@ -137,7 +137,7 @@ spec:
           resources:
             requests:
               cpu: 2
-              memory: 4Gi
+              memory: 8Gi
           #  - name: docker-initdb-config
           #    mountPath: /docker-entrypoint-initdb.d
         - name: telegraf

@@ -24,7 +24,7 @@ consumer = KafkaConsumer(
     # enable_auto_commit=True,
     # group_id=os.environ['KAFKA_GROUP_ID'],
     value_deserializer=lambda m: loads(m.decode('utf-8')),
-    bootstrap_servers=[os.environ['KAFKA_BOOTSTRAP_SERVER']]
+    bootstrap_servers=os.environ['KAFKA_BOOTSTRAP_SERVER'].split(',')
 )
 
 def setfacl( userids, directory ):
@@ -53,6 +53,10 @@ for message in consumer:
 
     m = message.value['value']
     print( f"Permissions update on directory {directory} {op} with {m['players']} by {m['requestor']}" )
+
+    if len(m['players') == 0:
+      print( f"No users defined!" )
+      continue
 
     # get current
     output = subprocess.check_output(

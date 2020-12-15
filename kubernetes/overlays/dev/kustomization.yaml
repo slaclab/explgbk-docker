@@ -7,9 +7,7 @@ resources:
 - ns.yaml
 - database-storage.yaml
 - ingress.yaml
-- collab-listener.yaml
 - cryoem-storage.yaml
-- rbac.yaml
 - message_bus-storage.yaml
 
 patchesStrategicMerge:
@@ -17,6 +15,8 @@ patchesStrategicMerge:
 - logbook-patches.yaml
 #- nodeSelector-patches.yaml
 - message_bus-patches.yaml
+- collab-listener-patches.yaml
+- rbac.yaml
 
 secretGenerator:
 - name: mongodb
@@ -41,4 +41,8 @@ secretGenerator:
 
 images:
 - name: slaclab/explgbk-docker
-  newTag: '20201008.0'
+  #newTag: '20201106.0'
+  newTag: "20201124.0"
+- name: slaclab/explgbk-collab-listener
+  newTag: '20201019.1'
+
