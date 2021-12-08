@@ -12,19 +12,19 @@ spec:
     name: auth
 
 
----
-
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: cryoem-logbook--expdata
-spec:
-  storageClassName: cryoem-logbook--expdata
-  accessModes:
-    - ReadOnlyMany
-  resources:
-    requests:
-      storage: 1Gi
+#---
+#
+#kind: PersistentVolumeClaim
+#apiVersion: v1
+#metadata:
+#  name: cryoem-logbook--expdata
+#spec:
+#  storageClassName: cryoem-logbook--expdata
+#  accessModes:
+#    - ReadOnlyMany
+#  resources:
+#    requests:
+#      storage: 1Gi
 
 
 ---
@@ -93,8 +93,8 @@ spec:
           volumeMounts:
             - name: auth-secrets
               mountPath: /etc/httpd/certs/
-            - name: auth-exp-data
-              mountPath: /expdata/
+            #- name: auth-exp-data
+            #  mountPath: /expdata/
             - name: auth-configmap
               mountPath: /etc/httpd/conf.d/explgbk.conf
               subPath: explgbk.conf
@@ -136,9 +136,9 @@ spec:
                 path: backend.htpasswd
               - key: intermediates.cer
                 path: intermediates.cer
-        - name: auth-exp-data
-          persistentVolumeClaim:
-            claimName: cryoem-logbook--expdata
+ #       - name: auth-exp-data
+ #         persistentVolumeClaim:
+ #           claimName: cryoem-logbook--expdata
         - name: auth-configmap
           configMap:
             name: auth-config
