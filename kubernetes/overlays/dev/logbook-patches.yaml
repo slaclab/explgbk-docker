@@ -17,7 +17,8 @@ spec:
           - name: NODE_ENV
             value: dev
           - name: MONGODB_URL
-            value: 'mongodb://mongo-0.mongo:27017,mongo-1.mongo:27017/?replicationSet=rs0'
+            #value: 'mongodb://mongo-0.mongo:27017,mongo-1.mongo:27017/?replicationSet=rs0'
+            value: 'mongodb://mongo-0:27017/?replicationSet=rs0'
           #- name: KAFKA_BOOTSTRAP_SERVER
           #  value: kafka:9092
 

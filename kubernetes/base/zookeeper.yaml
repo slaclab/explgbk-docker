@@ -23,31 +23,6 @@ spec:
       role: zk
   minAvailable: 2
 ---  
-apiVersion: v1
-kind: Service
-metadata:
-  name: zk-headless
-  labels:
-    role: zk-headless
-spec:
-  ports:
-  - port: 2181
-    name: client
-    targetPort: 2181
-    protocol: TCP
-  - port: 2888
-    name: server
-    targetPort: 2888
-    protocol: TCP
-  - port: 3888
-    name: leader-election
-    targetPort: 3888
-    protocol: TCP
-  clusterIP: None
-  selector:
-    role: zk
-
----
 
 apiVersion: apps/v1
 kind: StatefulSet

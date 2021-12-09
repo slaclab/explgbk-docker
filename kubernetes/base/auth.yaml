@@ -93,8 +93,8 @@ spec:
           volumeMounts:
             - name: auth-secrets
               mountPath: /etc/httpd/certs/
-            #- name: auth-exp-data
-            #  mountPath: /expdata/
+            - name: auth-exp-data
+              mountPath: /expdata/
             - name: auth-configmap
               mountPath: /etc/httpd/conf.d/explgbk.conf
               subPath: explgbk.conf
@@ -136,7 +136,8 @@ spec:
                 path: backend.htpasswd
               - key: intermediates.cer
                 path: intermediates.cer
- #       - name: auth-exp-data
+        - name: auth-exp-data
+          emptyDir: {}
  #         persistentVolumeClaim:
  #           claimName: cryoem-logbook--expdata
         - name: auth-configmap

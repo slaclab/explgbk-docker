@@ -34,3 +34,45 @@ spec:
           operator: In
           values:
           - 'true'
+
+
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: cryoem-logbook--sdf-exp
+spec:
+  storageClassName: cryoem-logbook-prod--sdf-exp
+  accessModes:
+    - "ReadWriteMany"
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: cryoem-logbook-prod--sdf-exp
+  labels:
+    type: local
+spec:
+  storageClassName: cryoem-logbook-prod--sdf-exp
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  local:
+    path: /sdf/group/cryoem/exp/
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: storage/sdf
+          operator: In
+          values:
+          - 'true'
+
+

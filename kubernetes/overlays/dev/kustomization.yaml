@@ -15,7 +15,7 @@ patchesStrategicMerge:
 - logbook-patches.yaml
 #- nodeSelector-patches.yaml
 - message_bus-patches.yaml
-- collab-listener-patches.yaml
+#- collab-listener-patches.yaml
 - rbac.yaml
 
 secretGenerator:

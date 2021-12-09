@@ -1,68 +1,68 @@
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: cryoem-logbook-dev--kafka-0
+  name: cryoem-logbook-prod--kafka-0
   labels:
     type: local
 spec:
-  storageClassName: cryoem-logbook-dev--kafka
+  storageClassName: cryoem-logbook-prod--kafka
   capacity:
     storage: 1Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /gpfs/slac/cryo/fs1/daq/dev/kafka/kafka-0
+    path: /data/cryoem-logbook-prod/daq/prod/kafka/kafka-0
   nodeAffinity:
     required:
       nodeSelectorTerms:
       - matchExpressions:
-        - key: storage/cryoem
+        - key: kubernetes.io/hostname
           operator: In
           values:
-          - 'true'
+          - neb0002.slac.stanford.edu
 
 ---
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: cryoem-logbook-dev--kafka-2
+  name: cryoem-logbook-prod--kafka-2
   labels:
     type: local
 spec:
-  storageClassName: cryoem-logbook-dev--kafka
+  storageClassName: cryoem-logbook-prod--kafka
   capacity:
     storage: 1Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /gpfs/slac/cryo/fs1/daq/dev/kafka/kafka-2
+    path: /opt/cryoem-logbook-prod/daq/prod/kafka/kafka-2
   nodeAffinity:
     required:
       nodeSelectorTerms:
       - matchExpressions:
-        - key: storage/cryoem
+        - key: kubernetes.io/hostname
           operator: In
           values:
-          - 'true'
+          - deft0029
 
 ---
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: cryoem-logbook-dev--kafka-1
+  name: cryoem-logbook-prod--kafka-1
   labels:
     type: local
 spec:
-  storageClassName: cryoem-logbook-dev--kafka
+  storageClassName: cryoem-logbook-prod--kafka
   capacity:
     storage: 1Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /opt/cryoem-logbook-dev/daq/dev/kafka/kafka-1
+    path: /opt/cryoem-logbook-prod/daq/prod/kafka/kafka-1
   nodeAffinity:
     required:
       nodeSelectorTerms:

@@ -64,7 +64,7 @@ spec:
   serviceName: "mongo"
   updateStrategy:
     type: RollingUpdate
-  replicas: 3 
+  replicas: 2 
   selector:
     matchLabels:
       role: mongo

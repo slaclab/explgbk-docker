@@ -1,9 +1,9 @@
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: cryoem-logbook--expdata
-spec:
-  storageClassName: cryoem-logbook-prod--expdata
+#kind: PersistentVolumeClaim
+#apiVersion: v1
+#metadata:
+#  name: cryoem-logbook--expdata
+#spec:
+#  storageClassName: cryoem-logbook-prod--expdata
 
 ---
 apiVersion: apps/v1

@@ -1,4 +1,26 @@
 ---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: kafka-node-reader
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: cryoem-logbook-prod
+
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: kafka-pod-labler
+  namespace: kafka
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: cryoem-logbook-prod
+
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:

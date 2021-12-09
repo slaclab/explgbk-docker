@@ -12,6 +12,9 @@ spec:
       labels:
         app: collab-listener
     spec:
+      securityContext:
+        runAsUser: 15693
+        runAsGroup: 3591
       containers:
       - name: collab-listener
         image: slaclab/explgbk-collab-listener:20200421.0
@@ -23,3 +26,7 @@ spec:
           value: roles
         - name: KAFKA_GROUP_ID
           value: roles
+      volumes:
+      - name: exp-data
+        persistentVolumeClaim:
+          claimName: cryoem-logbook--sdf-exp
