@@ -1,8 +1,10 @@
 VERSION ?= latest
 DOCKER ?= docker
 
-update:
+init:
 	git submodule update --recursive --init
+
+update:
 	git submodule foreach git pull origin master
 
 logbook:
