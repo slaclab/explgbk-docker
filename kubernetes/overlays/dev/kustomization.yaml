@@ -17,6 +17,7 @@ patchesStrategicMerge:
 - message_bus-patches.yaml
 #- collab-listener-patches.yaml
 - rbac.yaml
+- database-patches.yaml
 
 secretGenerator:
 - name: mongodb
@@ -42,7 +43,8 @@ secretGenerator:
 images:
 - name: slaclab/explgbk-docker
   #newTag: '20201106.0'
-  newTag: "20201124.0"
+  #newTag: "20201124.0"
+  newTag: "20220121.0"
 - name: slaclab/explgbk-collab-listener
   newTag: '20201019.1'
 
