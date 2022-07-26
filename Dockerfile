@@ -1,5 +1,5 @@
-#FROM node:8.10.0-alpine
-FROM alpine:3.7
+FROM alpine:3.15
+#FROM alpine:3.7
 
 MAINTAINER Yee-Ting Li <yee379@gmail.com>
 
@@ -10,7 +10,7 @@ ENV GUNICORN_USER=gunicorn
 RUN adduser -D -h $APP_DIR $GUNICORN_USER
 
 RUN apk add --no-cache bash file git nginx uwsgi uwsgi-python python3 openldap-clients \
-    gcc libffi-dev python3-dev musl-dev libressl-dev curl curl-dev nodejs \
+    gcc libffi-dev python3-dev musl-dev libressl-dev curl curl-dev nodejs npm \
     imagemagick
 #nodejs \
 
@@ -28,7 +28,7 @@ RUN python3 -m ensurepip \
     && rm -r /root/.cache
 
 RUN npm config set unsafe-perm true
-RUN npm install --global \
+RUN npm install --unsafe-perm --global \
     @fortawesome/fontawesome-free \
     acorn@^6.0.0 \
     acorn-jsx \
