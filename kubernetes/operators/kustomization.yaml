@@ -1,0 +1,7 @@
+namespace: cryoem-logbook
+
+resources:
+#- ns.yaml
+- mongo-operator.yaml
+- mongo-crd.yaml
+- kafka-operator.yaml

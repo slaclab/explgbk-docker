@@ -1,12 +1,6 @@
-namespace: cryoem-logbook-dev
+namespace: cryoem-logbook
 
 resources:
-#- database-storage.yaml
-#- cryoem-storage.yaml
-- zookeeper.yaml
-- zookeeper-service.yaml
-- message_bus.yaml
-- database.yaml
 - logbook.yaml
 - auth.yaml
 - collab-listener.yaml

@@ -1,18 +1,18 @@
-SECRET_PATH=secret/cryoem/cryoem-daq--prod
+SECRET_PATH ?= secret/cryoem/cryoem-logbook
 
-etc:
-	mkdir -p etc
+get-secrets-from-vault:
+	mkdir -p etc/.secrets/
+	set -e; for i in MONGODB_BACKUP_PASSWORD  MONGODB_CLUSTER_ADMIN_PASSWORD  MONGODB_CLUSTER_MONITOR_PASSWORD  MONGODB_USER_ADMIN_PASSWORD	PMM_SERVER_PASSWORD  S3_ACCESS_KEY  S3_SECRET_KEY cert.crt cert.key intermediates.cer keytab_webauth.encoded backend.htpasswd collab-listener.password; do vault kv get --field=$$i $(SECRET_PATH) > etc/.secrets/$$i ; done
+	cat etc/.secrets/keytab_webauth.encoded | base64 -d > etc/.secrets/keytab_webauth
+	
 
-passwords: etc
-	# db
-	vault kv get --field=cert.crt -format=json $(SECRET_PATH)/logbook | sed -e 's/\"//g' > etc/cert.crt
-	vault kv get --field=cert.key -format=json $(SECRET_PATH)/logbook | sed -e 's/\"//g' > etc/cert.key
-	vault kv get --field=intermediates.cer -format=json $(SECRET_PATH)/logbook | sed -e 's/\"//g' > etc/intermediates.cer
-	vault kv get --field=keytab_webauth -format=json $(SECRET_PATH)/logbook | sed -e 's/\"//g' > etc/keytab_webauth
-	vault kv get --field=backend.htpasswd -format=json $(SECRET_PATH)/logbook | sed -e 's/\"//g' > etc/backend.htpasswd
-	vault kv get --field=collab-listener.password -format=json $(SECRET_PATH)/logbook | sed -e 's/\"//g' > etc/collab-listener.password
+clean-secrets:
+	rm -f etc/.secrets/
 
-
-    
-apply:
+run-apply:
 	kubectl apply -k .
+
+dump:
+	kubectl kustomize  . | yh
+
+apply: get-secrets-from-vault run-apply clean-secrets
