@@ -1,23 +1,19 @@
-namespace: cryoem-logbook-prod
+namespace: cryoem-logbook
 
 bases:
+- ../../operators/
 - ../../base/
 
 resources:
 - ns.yaml
-- database-storage.yaml
+- mongo-database.yaml
+- kafka-messagebus.yaml
 - ingress.yaml
-- cryoem-storage.yaml
-#- rbac.yaml
-- message_bus-storage.yaml
 
 patchesStrategicMerge:
 - auth-patches.yaml
-- storage-patches.yaml
 - logbook-patches.yaml
 - collab-listener-patches.yaml
-- message_bus-patches.yaml
-#- nodeSelector-patches.yaml
 
 secretGenerator:
 - name: mongodb
@@ -34,20 +30,20 @@ secretGenerator:
   - password=somepassword
 - name: auth-secrets
   files:
-  - ./etc/cert.crt
-  - ./etc//intermediates.cer
-  - ./etc/cert.key
-  - ./etc/keytab_webauth
-  - ./etc/backend.htpasswd
+  - ./etc/.secrets/cert.crt
+  - ./etc/.secrets/intermediates.cer
+  - ./etc/.secrets/cert.key
+  - ./etc/.secrets/keytab_webauth
+  - ./etc/.secrets/backend.htpasswd
 - name: collab-listener
   literals:
   - username=cryo-daq
   files:
-  - password=./etc/collab-listener.password
+  - password=./etc/.secrets/collab-listener.password
 
 images:
 - name: slaclab/explgbk-docker
-  newTag: '20201210.0'
-  #newTag: '20201124.0'
+#  newTag: '20201210.0'
+  newTag: '20220121.0'
 - name: slaclab/explgbk-collab-listener
   newTag: '20201019.1'

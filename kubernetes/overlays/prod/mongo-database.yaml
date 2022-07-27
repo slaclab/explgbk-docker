@@ -1,0 +1,38 @@
+apiVersion: psmdb.percona.com/v1-12-0
+kind: PerconaServerMongoDB
+metadata:
+  name: mongo
+  finalizers:
+    - delete-psmdb-pods-in-order
+spec:
+  crVersion: 1.12.0
+  image: percona/percona-server-mongodb:4.4.10-11
+  #allowUnsafeConfigurations: true
+  updateStrategy: SmartUpdate
+  upgradeOptions:
+    apply: disabled
+    schedule: "0 2 * * *"
+    setFCV: false
+  secrets:
+    users: cryoem-logbook
+  replsets:
+  - name: rs0
+    size: 3
+    volumeSpec:
+      persistentVolumeClaim:
+        resources:
+          requests:
+            storage: 100Gi
+    affinity:
+      antiAffinityTopologyKey: "kubernetes.io/hostname"
+  sharding:
+    enabled: true
+    configsvrReplSet:
+      size: 3
+      volumeSpec:
+        persistentVolumeClaim:
+          resources:
+            requests:
+              storage: 3Gi
+    mongos:
+      size: 3

@@ -1,9 +1,9 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: cryoem-logbook--exp
+  name: sdf-group-cryoem-exp
 spec:
-  storageClassName: cryoem-logbook-prod--exp
+  storageClassName: sdf-group-cryoem-exp
   accessModes:
     - "ReadWriteMany"
   resources:
@@ -11,68 +11,3 @@ spec:
       storage: 1Gi
 
 ---
-
-kind: PersistentVolume
-apiVersion: v1
-metadata:
-  name: cryoem-logbook-prod--exp
-  labels:
-    type: local
-spec:
-  storageClassName: cryoem-logbook-prod--exp
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteMany
-  local:
-    path: /gpfs/slac/cryo/fs1/exp/
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: storage/cryoem
-          operator: In
-          values:
-          - 'true'
-
-
----
-
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: cryoem-logbook--sdf-exp
-spec:
-  storageClassName: cryoem-logbook-prod--sdf-exp
-  accessModes:
-    - "ReadWriteMany"
-  resources:
-    requests:
-      storage: 1Gi
-
----
-
-kind: PersistentVolume
-apiVersion: v1
-metadata:
-  name: cryoem-logbook-prod--sdf-exp
-  labels:
-    type: local
-spec:
-  storageClassName: cryoem-logbook-prod--sdf-exp
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteMany
-  local:
-    path: /sdf/group/cryoem/exp/
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: storage/sdf
-          operator: In
-          values:
-          - 'true'
-
-

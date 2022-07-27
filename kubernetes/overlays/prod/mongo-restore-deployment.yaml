@@ -1,0 +1,45 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mongo-restore
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-restore
+  template:
+    metadata:
+      labels:
+        app: mongo-restore
+    spec:
+      containers:
+      - name: mongo-restore
+        image: mongo:bionic
+        command: [ "bash", "-c", "sleep infinity" ]
+        volumeMounts:
+        - mountPath: /data
+          name: mongo-restore
+      - name: scp
+        image: kroniak/ssh-client
+        command:  [ "bash", "-c", "sleep infinity" ]
+        volumeMounts:
+        - mountPath: /data
+          name: mongo-restore
+      volumes:
+      - name: mongo-restore
+        persistentVolumeClaim:
+          claimName: mongo-restore
+
