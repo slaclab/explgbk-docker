@@ -7,7 +7,7 @@ get-secrets-from-vault:
 	
 
 clean-secrets:
-	rm -f etc/.secrets/
+	rm -rf etc/.secrets/
 
 run-apply:
 	kubectl apply -k .
