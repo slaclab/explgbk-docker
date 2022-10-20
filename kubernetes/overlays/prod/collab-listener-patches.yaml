@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -29,4 +30,4 @@ spec:
       volumes:
       - name: exp-data
         persistentVolumeClaim:
-          claimName: sdf-group-cryoem-exp
+          claimName: fs-ddn-sdf-group-cryoem-exp

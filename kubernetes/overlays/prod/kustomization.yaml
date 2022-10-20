@@ -9,6 +9,7 @@ resources:
 - mongo-database.yaml
 - kafka-messagebus.yaml
 - ingress.yaml
+- cryoem-storage.yaml
 
 patchesStrategicMerge:
 - auth-patches.yaml

@@ -1,9 +1,9 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: sdf-group-cryoem-exp
+  name: fs-ddn-sdf-group-cryoem-exp
 spec:
-  storageClassName: sdf-group-cryoem-exp
+  storageClassName: fs-ddn-sdf-group-cryoem-exp
   accessModes:
     - "ReadWriteMany"
   resources:
