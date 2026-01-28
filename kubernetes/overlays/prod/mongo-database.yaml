@@ -1,38 +1,136 @@
-apiVersion: psmdb.percona.com/v1-12-0
+apiVersion: psmdb.percona.com/v1
 kind: PerconaServerMongoDB
 metadata:
   name: mongo
-  finalizers:
-    - delete-psmdb-pods-in-order
+  namespace: cryoem-logbook
 spec:
+  backup:
+    enabled: true
+    image: perconalab/percona-server-mongodb-operator:main-backup
+    pitr:
+      compressionLevel: 6
+      compressionType: gzip
+      enabled: true
+    serviceAccountName: percona-server-mongodb-operator
+    storages:
+      minio:
+        s3:
+          bucket: cryoem-logbook-mongodb-backup
+          credentialsSecret: mongo-backup-s3-2mmtk52f47
+          endpointUrl: https://s3dfrgw.slac.stanford.edu/cryoem-logbook-mongodb-backup
+          region: Default
+        type: s3
   crVersion: 1.12.0
-  image: percona/percona-server-mongodb:4.4.10-11
-  #allowUnsafeConfigurations: true
-  updateStrategy: SmartUpdate
-  upgradeOptions:
-    apply: disabled
-    schedule: "0 2 * * *"
-    setFCV: false
-  secrets:
-    users: cryoem-logbook
+  image: percona/percona-server-mongodb:5.0.22-19
   replsets:
-  - name: rs0
+  - affinity:
+      antiAffinityTopologyKey: kubernetes.io/hostname
+    name: rs0
     size: 3
+    containerSecurityContext:
+      privileged: false
+      capabilities:
+        add:
+          - SYS_RESOURCE
+    configuration: |
+      storage:
+        wiredTiger:
+          engineConfig:
+            cacheSizeGB: 16
+          collectionConfig:
+            blockCompressor: snappy
+          indexConfig:
+            prefixCompression: true
+      setParameter:
+        maxIndexBuildMemoryUsageMegabytes: 1024
+        initialSyncWorkerThreads: 8
+        numInitialSyncCollectionThreads: 4
+      replication:
+        flowControl:
+          enabled: false
+    livenessProbe:
+      failureThreshold: 10         # default 4 - how many failures before restart
+      initialDelaySeconds: 7200    # default 60 - wait before first probe
+      periodSeconds: 360           # default 30 - how often to probe
+      timeoutSeconds: 10           # default 5 - probe timeout
+      startupDelaySeconds: 7200    # default 7200 - startup grace period
+    readinessProbe:
+      failureThreshold: 10         # default 3
+      initialDelaySeconds: 3600    # default 10
+      periodSeconds: 360           # default 3
+      timeoutSeconds: 5            # default 2
+      successThreshold: 1          # default 1
+    resources:
+      limits:
+        cpu: "16"
+        memory: "64Gi"
+      requests:
+        cpu: "8"
+        memory: "32Gi"
     volumeSpec:
       persistentVolumeClaim:
         resources:
           requests:
-            storage: 100Gi
-    affinity:
-      antiAffinityTopologyKey: "kubernetes.io/hostname"
+            storage: 300Gi
+  secrets:
+    users: cryoem-logbook
   sharding:
-    enabled: true
     configsvrReplSet:
       size: 3
+      containerSecurityContext:
+        capabilities:
+          add:
+            - SYS_RESOURCE
+      configuration: |
+        storage:
+          wiredTiger:
+            engineConfig:
+              cacheSizeGB: 2
+      resources:
+        limits:
+          cpu: "2"
+          memory: "8Gi"
+        requests:
+          cpu: "1"
+          memory: "4Gi"
+      livenessProbe:
+        failureThreshold: 10
+        initialDelaySeconds: 120
+        periodSeconds: 30
+        timeoutSeconds: 30
+        startupDelaySeconds: 7200
+      readinessProbe:
+        failureThreshold: 10
+        initialDelaySeconds: 120
+        periodSeconds: 30
+        timeoutSeconds: 10
       volumeSpec:
         persistentVolumeClaim:
           resources:
             requests:
               storage: 3Gi
+    enabled: true
     mongos:
       size: 3
+      resources:
+        limits:
+          cpu: "2"
+          memory: "4Gi"
+        requests:
+          cpu: "1"
+          memory: "2Gi" 
+      livenessProbe:
+        failureThreshold: 6
+        initialDelaySeconds: 60
+        periodSeconds: 30
+        timeoutSeconds: 10
+      readinessProbe:
+        failureThreshold: 8
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        timeoutSeconds: 5
+  updateStrategy: SmartUpdate
+  upgradeOptions:
+    apply: disabled
+    schedule: 0 2 * * *
+    setFCV: false
