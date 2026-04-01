@@ -1,0 +1,51 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mongo-restore-logic
+spec:
+  storageClassName: wekafs--sdf-k8s01
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1000Gi
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-logic-backup
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-restore
+  template:
+    metadata:
+      labels:
+        app: mongo-restore
+    spec:
+      containers:
+      - name: mongo-restore
+        image: mongo:5.0
+        command: [ "bash", "-c", "sleep infinity" ]
+        volumeMounts:
+        - mountPath: /data
+          name: mongo-restore
+        - mountPath: /etc/mongo-ssl
+          name: mongo-ssl
+          readOnly: true
+      - name: scp
+        image: kroniak/ssh-client
+        command:  [ "bash", "-c", "sleep infinity" ]
+        volumeMounts:
+        - mountPath: /data
+          name: mongo-restore
+      volumes:
+      - name: mongo-restore
+        persistentVolumeClaim:
+          claimName: mongo-restore-logic 
+      - name: mongo-ssl
+        secret:
+          secretName: mongo-ssl

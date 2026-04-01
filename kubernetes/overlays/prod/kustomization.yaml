@@ -10,6 +10,7 @@ resources:
 - kafka-messagebus.yaml
 - ingress.yaml
 - cryoem-storage.yaml
+- mongodump.yaml
 
 patchesStrategicMerge:
 - auth-patches.yaml
