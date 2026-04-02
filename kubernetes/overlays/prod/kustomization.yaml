@@ -42,6 +42,8 @@ secretGenerator:
   - username=cryo-daq
   files:
   - password=./etc/.secrets/collab-listener.password
+
+configMapGenerator:
 - name: mongodump-script
   files:
   - mongodump-by-db.sh
