@@ -49,3 +49,65 @@ spec:
       - name: mongo-ssl
         secret:
           secretName: mongo-ssl
+
+---
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mongodump
+  namespace: cryoem-logbook
+spec:
+  schedule: "0 2 * * *"        # daily at 2am
+  concurrencyPolicy: Forbid     # skip if previous job still running
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: mongodump
+            image: mongo:5.0
+            command: ["bash", "/scripts/mongodump-by-db.sh"]
+            env:
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cryoem-logbook
+                  key: MONGODB_BACKUP_USER
+            - name: MONGO_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: cryoem-logbook
+                  key: MONGODB_BACKUP_PASSWORD
+            - name: MONGO_HOST
+              value: "mongo-rs0-0.mongo-rs0"
+            - name: MONGO_PORT
+              value: "27017"
+            - name: MONGO_AUTH_DB
+              value: "admin"
+            - name: DUMP_ROOT
+              value: "/data/mongodump"
+            - name: RETAIN_DAYS
+              value: "14"
+            - name: GZIP
+              value: "true"
+            - name: PARALLEL
+              value: "4"
+            - name: VERBOSE
+              value: "true"
+            volumeMounts:
+            - name: dump-storage
+              mountPath: /data
+            - name: scripts
+              mountPath: /scripts
+          volumes:
+          - name: dump-storage
+            persistentVolumeClaim:
+              claimName: mongo-restore-logic
+          - name: scripts
+            configMap:
+              name: mongodump-script
+              defaultMode: 0755
