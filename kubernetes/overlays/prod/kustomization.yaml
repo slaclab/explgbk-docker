@@ -47,6 +47,8 @@ configMapGenerator:
 - name: mongodump-script
   files:
   - mongodump-by-db.sh
+  options:
+    disableNameSuffixHash: true
 
 images:
 - name: slaclab/explgbk-docker
