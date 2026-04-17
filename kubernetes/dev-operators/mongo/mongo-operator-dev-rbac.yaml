@@ -1,0 +1,74 @@
+# Role + RoleBinding granting the percona operator (in percona-mongodb-operator
+# namespace) access to manage PSMDB resources in the dev namespace.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: percona-server-mongodb-operator
+  namespace: dev
+rules:
+- apiGroups:
+  - psmdb.percona.com
+  resources:
+  - perconaservermongodbs
+  - perconaservermongodbs/status
+  - perconaservermongodbs/finalizers
+  - perconaservermongodbbackups
+  - perconaservermongodbbackups/status
+  - perconaservermongodbbackups/finalizers
+  - perconaservermongodbrestores
+  - perconaservermongodbrestores/status
+  - perconaservermongodbrestores/finalizers
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [""]
+  resources:
+  - pods
+  - pods/exec
+  - services
+  - persistentvolumeclaims
+  - secrets
+  - configmaps
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [apps]
+  resources:
+  - deployments
+  - replicasets
+  - statefulsets
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [batch]
+  resources: [cronjobs]
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [policy]
+  resources: [poddisruptionbudgets]
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [coordination.k8s.io]
+  resources: [leases]
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [events.k8s.io, ""]
+  resources: [events]
+  verbs: [get, list, watch, create, patch]
+- apiGroups: [certmanager.k8s.io, cert-manager.io]
+  resources:
+  - issuers
+  - certificates
+  - certificaterequests
+  verbs: [get, list, watch, create, update, patch, delete, deletecollection]
+- apiGroups: [net.gke.io, multicluster.x-k8s.io]
+  resources:
+  - serviceexports
+  - serviceimports
+  verbs: [get, list, watch, create, update, patch, delete, deletecollection]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: service-account-percona-server-mongodb-operator
+  namespace: dev
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: percona-server-mongodb-operator
+subjects:
+- kind: ServiceAccount
+  name: percona-server-mongodb-operator
+  namespace: percona-mongodb-operator

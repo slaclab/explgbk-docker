@@ -1,0 +1,10 @@
+namespace: percona-mongodb-operator
+
+resources:
+- ns.yaml
+- mongo-operator-crds.yaml
+- mongo-operator-rbac.yaml
+- mongo-operator.yaml
+
+patches:
+- path: mongo-operator-patch.yaml
