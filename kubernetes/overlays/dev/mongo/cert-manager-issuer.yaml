@@ -1,0 +1,39 @@
+---
+# Bootstrap SelfSigned issuer (only used to create the CA cert)
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: mongo-selfsigned-issuer
+  namespace: dev
+spec:
+  selfSigned: {}
+---
+# CA Certificate (signed by the SelfSigned issuer, stored in mongo-ca-key-pair secret)
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: mongo-ca-cert
+  namespace: dev
+spec:
+  isCA: true
+  commonName: mongo-dev-ca
+  secretName: mongo-ca-key-pair
+  duration: 87600h       # 10 years
+  renewBefore: 8760h     # renew 1 year before expiry
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  issuerRef:
+    name: mongo-selfsigned-issuer
+    kind: Issuer
+    group: cert-manager.io
+---
+# CA Issuer (referenced by the PSMDB CR to sign MongoDB TLS certs)
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: mongo-ca-issuer
+  namespace: dev
+spec:
+  ca:
+    secretName: mongo-ca-key-pair

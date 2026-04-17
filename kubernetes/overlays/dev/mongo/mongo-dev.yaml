@@ -1,0 +1,45 @@
+apiVersion: psmdb.percona.com/v1
+kind: PerconaServerMongoDB
+metadata:
+  name: mongo-dev
+  namespace: dev
+spec:
+  image: percona/percona-server-mongodb:8.0.19-7
+  #pause: true
+  unsafeFlags:
+    tls: true
+    #tls: false
+  tls:
+    #mode: preferTLS
+    mode: disabled
+    #issuerConf:
+    #  name: mongo-ca-issuer
+    #  kind: Issuer
+    #  group: cert-manager.io
+  replsets:
+  - affinity:
+      antiAffinityTopologyKey: kubernetes.io/hostname
+    name: rs0
+    size: 3
+    configuration: |
+      storage:
+        wiredTiger:
+          engineConfig:
+            cacheSizeGB: 4
+          collectionConfig:
+            blockCompressor: snappy
+          indexConfig:
+            prefixCompression: true
+    resources:
+      limits:
+        cpu: 4
+        memory: 16Gi
+      requests:
+        cpu: 2
+        memory: 8Gi
+    volumeSpec:
+      persistentVolumeClaim:
+        resources:
+          requests:
+            storage: 100Gi
+  updateStrategy: SmartUpdate
