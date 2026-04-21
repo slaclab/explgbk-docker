@@ -1,0 +1,27 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: mongo-dev2-ssl
+  namespace: dev
+spec:
+  secretName: mongo-dev2-ssl
+  issuerRef:
+    name: mongo-ca-issuer
+    kind: Issuer
+  dnsNames:
+    - "*.mongo-dev2-rs0.dev.svc.cluster.local"
+    - "mongo-dev2-rs0.dev.svc.cluster.local"
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: mongo-dev2-ssl-internal
+  namespace: dev
+spec:
+  secretName: mongo-dev2-ssl-internal
+  issuerRef:
+    name: mongo-ca-issuer
+    kind: Issuer
+  dnsNames:
+    - "*.mongo-dev2-rs0.dev.svc.cluster.local"
+    - "mongo-dev2-rs0.dev.svc.cluster.local"
