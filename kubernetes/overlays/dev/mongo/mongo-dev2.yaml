@@ -12,10 +12,10 @@ spec:
   tls:
     mode: preferTLS
     #mode: disabled
-    issuerConf:
-      name: mongo-ca-issuer
-      kind: Issuer
-      group: cert-manager.io
+    #issuerConf:
+    #  name: mongo-ca-issuer
+    #  kind: Issuer
+    #  group: cert-manager.io
   replsets:
   - affinity:
       antiAffinityTopologyKey: kubernetes.io/hostname
