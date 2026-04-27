@@ -1,0 +1,8 @@
+resources:
+- clusterrole-psmdb-operator.yaml
+- clusterrolebinding-service-account-psmdb-operator.yaml
+- customresourcedefinition-perconaservermongodbbackups.psmdb.percona.com.yaml
+- customresourcedefinition-perconaservermongodbrestores.psmdb.percona.com.yaml
+- customresourcedefinition-perconaservermongodbs.psmdb.percona.com.yaml
+- deployment-psmdb-operator.yaml
+- serviceaccount-psmdb-operator.yaml

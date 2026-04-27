@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: psmdb-operator
+spec:
+  template:
+    spec:
+      containers:
+        - name: psmdb-operator
+          env:
+            - name: WATCH_NAMESPACE
+              value: "dev"
+              valueFrom: null
