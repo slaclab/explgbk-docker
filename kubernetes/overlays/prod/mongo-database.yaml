@@ -21,7 +21,7 @@ spec:
           endpointUrl: https://s3dfrgw.slac.stanford.edu
           region: Default
         type: s3
-  image: percona/percona-server-mongodb:5.0.22-19
+  image: percona/percona-server-mongodb:6.0.27-21
   pause: false
   replsets:
   - affinity:
