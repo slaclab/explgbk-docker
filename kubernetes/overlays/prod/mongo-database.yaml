@@ -4,9 +4,10 @@ metadata:
   name: mongo
   namespace: cryoem-logbook
 spec:
+  crVersion: 1.18.0
   backup:
     enabled: true
-    image: perconalab/percona-server-mongodb-operator:main-backup
+    image: percona/percona-backup-mongodb:2.7.0
     pitr:
       compressionLevel: 6
       compressionType: gzip
@@ -17,21 +18,14 @@ spec:
         s3:
           bucket: cryoem-logbook-mongodb-backup
           credentialsSecret: mongo-backup-s3-2mmtk52f47
-          endpointUrl: https://s3dfrgw.slac.stanford.edu/cryoem-logbook-mongodb-backup
+          endpointUrl: https://s3dfrgw.slac.stanford.edu
           region: Default
         type: s3
-  crVersion: 1.12.0
   image: percona/percona-server-mongodb:5.0.22-19
+  pause: false
   replsets:
   - affinity:
       antiAffinityTopologyKey: kubernetes.io/hostname
-    name: rs0
-    size: 3
-    containerSecurityContext:
-      privileged: false
-      capabilities:
-        add:
-          - SYS_RESOURCE
     configuration: |
       storage:
         wiredTiger:
@@ -41,69 +35,69 @@ spec:
             blockCompressor: snappy
           indexConfig:
             prefixCompression: true
-      setParameter:
-        maxIndexBuildMemoryUsageMegabytes: 1024
-        initialSyncWorkerThreads: 8
-        numInitialSyncCollectionThreads: 4
-      replication:
-        flowControl:
-          enabled: false
+    containerSecurityContext:
+      capabilities:
+        add:
+        - SYS_RESOURCE
+      privileged: false
     livenessProbe:
-      failureThreshold: 10         # default 4 - how many failures before restart
-      initialDelaySeconds: 7200    # default 60 - wait before first probe
-      periodSeconds: 360           # default 30 - how often to probe
-      timeoutSeconds: 10           # default 5 - probe timeout
-      startupDelaySeconds: 7200    # default 7200 - startup grace period
+      failureThreshold: 10
+      initialDelaySeconds: 7200
+      periodSeconds: 360
+      startupDelaySeconds: 7200
+      timeoutSeconds: 10
+    name: rs0
     readinessProbe:
-      failureThreshold: 10         # default 3
-      initialDelaySeconds: 3600    # default 10
-      periodSeconds: 360           # default 3
-      timeoutSeconds: 5            # default 2
-      successThreshold: 1          # default 1
+      failureThreshold: 10
+      initialDelaySeconds: 3
+      periodSeconds: 30
+      successThreshold: 1
+      timeoutSeconds: 5
     resources:
       limits:
         cpu: "16"
-        memory: "64Gi"
+        memory: 64Gi
       requests:
         cpu: "8"
-        memory: "32Gi"
+        memory: 32Gi
+    size: 3
     volumeSpec:
       persistentVolumeClaim:
         resources:
           requests:
-            storage: 300Gi
+            storage: 100Gi
   secrets:
     users: cryoem-logbook
   sharding:
     configsvrReplSet:
-      size: 3
-      containerSecurityContext:
-        capabilities:
-          add:
-            - SYS_RESOURCE
       configuration: |
         storage:
           wiredTiger:
             engineConfig:
               cacheSizeGB: 2
-      resources:
-        limits:
-          cpu: "2"
-          memory: "8Gi"
-        requests:
-          cpu: "1"
-          memory: "4Gi"
+      containerSecurityContext:
+        capabilities:
+          add:
+          - SYS_RESOURCE
       livenessProbe:
         failureThreshold: 10
         initialDelaySeconds: 120
         periodSeconds: 30
-        timeoutSeconds: 30
         startupDelaySeconds: 7200
+        timeoutSeconds: 30
       readinessProbe:
         failureThreshold: 10
-        initialDelaySeconds: 120
+        initialDelaySeconds: 3
         periodSeconds: 30
         timeoutSeconds: 10
+      resources:
+        limits:
+          cpu: "2"
+          memory: 8Gi
+        requests:
+          cpu: "1"
+          memory: 4Gi
+      size: 3
       volumeSpec:
         persistentVolumeClaim:
           resources:
@@ -111,14 +105,6 @@ spec:
               storage: 3Gi
     enabled: true
     mongos:
-      size: 3
-      resources:
-        limits:
-          cpu: "2"
-          memory: "4Gi"
-        requests:
-          cpu: "1"
-          memory: "2Gi" 
       livenessProbe:
         failureThreshold: 6
         initialDelaySeconds: 60
@@ -126,9 +112,17 @@ spec:
         timeoutSeconds: 10
       readinessProbe:
         failureThreshold: 8
-        initialDelaySeconds: 30
+        initialDelaySeconds: 3
         periodSeconds: 10
         timeoutSeconds: 5
+      resources:
+        limits:
+          cpu: "2"
+          memory: 4Gi
+        requests:
+          cpu: "1"
+          memory: 2Gi
+      size: 3
   updateStrategy: SmartUpdate
   upgradeOptions:
     apply: disabled

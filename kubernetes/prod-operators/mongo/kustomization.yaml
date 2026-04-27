@@ -1,0 +1,4 @@
+resources:
+- ns.yaml
+- resources/
+- mongo-operator-prod-rbac.yaml
