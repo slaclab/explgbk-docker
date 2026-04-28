@@ -6,9 +6,9 @@ metadata:
   namespace: psmdb-operator
   labels:
     app.kubernetes.io/name: psmdb-operator
-    helm.sh/chart: psmdb-operator-1.18.0
+    helm.sh/chart: psmdb-operator-1.22.0
     app.kubernetes.io/instance: psmdb-operator
-    app.kubernetes.io/version: "1.18.0"
+    app.kubernetes.io/version: "1.22.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 1
@@ -29,7 +29,7 @@ spec:
         - name: psmdb-operator
           securityContext:
             {}
-          image: "percona/percona-server-mongodb-operator:1.18.0"
+          image: "percona/percona-server-mongodb-operator:1.22.0"
           imagePullPolicy: IfNotPresent
           ports:
           - containerPort: 8080
@@ -57,6 +57,8 @@ spec:
               value: "5s"
             - name: DISABLE_TELEMETRY
               value: "false"
+            - name: MAX_CONCURRENT_RECONCILES
+              value: "1"
           livenessProbe:
             httpGet:
               path: /healthz

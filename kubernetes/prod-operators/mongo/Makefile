@@ -2,7 +2,7 @@
 ## Usage:  make -C kubernetes/dev-operators/mongo <target>
 
 #MONGO_OPERATOR_VERSION ?= 1.15.0
-MONGO_OPERATOR_VERSION ?= 1.18.0
+MONGO_OPERATOR_VERSION ?= 1.22.0
 KUBECTL_DEPLOY_CONTEXT ?= 'cryoem'
 OPERATOR_NAMESPACE     ?= psmdb-operator
 WATCH_NAMESPACE        ?= cryoem-logbook

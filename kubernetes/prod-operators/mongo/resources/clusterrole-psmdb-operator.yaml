@@ -5,9 +5,9 @@ metadata:
   name: psmdb-operator
   labels:
     app.kubernetes.io/name: psmdb-operator
-    helm.sh/chart: psmdb-operator-1.18.0
+    helm.sh/chart: psmdb-operator-1.22.0
     app.kubernetes.io/instance: psmdb-operator
-    app.kubernetes.io/version: "1.18.0"
+    app.kubernetes.io/version: "1.22.0"
     app.kubernetes.io/managed-by: Helm
 rules:
   - apiGroups:
@@ -128,6 +128,13 @@ rules:
     - watch
     - create
     - patch
+  - apiGroups:
+    - metrics.k8s.io
+    resources:
+    - pods
+    verbs:
+    - get
+    - list
   - apiGroups:
     - certmanager.k8s.io
     - cert-manager.io
