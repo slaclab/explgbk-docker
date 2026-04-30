@@ -1,0 +1,9 @@
+apiVersion: psmdb.percona.com/v1
+kind: PerconaServerMongoDBBackup
+metadata:
+  name: backup-mongo2-20260428
+  namespace: dev
+spec:
+  clusterName: mongo2
+  storageName: minio
+  type: physical

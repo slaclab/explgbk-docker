@@ -1,0 +1,52 @@
+apiVersion: psmdb.percona.com/v1
+kind: PerconaServerMongoDB
+metadata:
+  name: mongo2-restore
+  namespace: dev
+spec:
+  crVersion: 1.22.0
+  image: percona/percona-server-mongodb:7.0.30-16
+  backup:
+    enabled: true
+    image: percona/percona-backup-mongodb:2.12.0
+    storages:
+      minio:
+        s3:
+          bucket: cryoem-logbook-mongodb-backup
+          credentialsSecret: mongo-backup-s3
+          endpointUrl: https://s3dfrgw.slac.stanford.edu
+          region: Default
+        type: s3
+  replsets:
+  - affinity:
+      antiAffinityTopologyKey: kubernetes.io/hostname
+    configuration: |
+      storage:
+        wiredTiger:
+          engineConfig:
+            cacheSizeGB: 1
+          collectionConfig:
+            blockCompressor: snappy
+          indexConfig:
+            prefixCompression: true
+    name: rs0
+    resources:
+      limits:
+        cpu: 2
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 2Gi
+    size: 1
+    volumeSpec:
+      persistentVolumeClaim:
+        resources:
+          requests:
+            storage: 100Gi
+  tls:
+    allowInvalidCertificates: true
+    mode: preferTLS
+  unsafeFlags:
+    replsetSize: true
+    tls: false
+  updateStrategy: SmartUpdate

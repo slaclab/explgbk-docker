@@ -1,0 +1,15 @@
+namespace: dev
+
+resources:
+- mongo-dev.yaml
+- mongo.yaml
+
+secretGenerator:
+- name: mongo-backup-s3
+  literals:
+  - AWS_ACCESS_KEY_ID=WG9Z4LZ8P3KIS13L9T9L
+  - AWS_SECRET_ACCESS_KEY=IAeVSDHIzaJi5jKKy889ASojGdpIfHTQ7ZSxtzE0
+  - AWS_SECRET_KEY=IAeVSDHIzaJi5jKKy889ASojGdpIfHTQ7ZSxtzE0
+
+generatorOptions:
+  disableNameSuffixHash: true

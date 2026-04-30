@@ -1,0 +1,17 @@
+## PITR restore for mongo-dev
+## Usage:
+##   1. Update backupName to the base backup name
+##   2. Update pitr.date to the target restore time (format: "YYYY-MM-DD HH:MM:SS")
+##   3. Change metadata.name to a unique name for each restore attempt
+##   4. kubectl apply -f mongo-restore.yaml
+apiVersion: psmdb.percona.com/v1
+kind: PerconaServerMongoDBRestore
+metadata:
+  name: restore-mongo-dev-pitr
+  namespace: dev
+spec:
+  clusterName: mongo-dev
+  backupName: backup-cryoem-mongo-dev20260428
+  pitr:
+    type: date
+    date: "2026-04-28 19:45:00"  # must be within PITR oplog range

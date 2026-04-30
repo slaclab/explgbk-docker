@@ -1,0 +1,70 @@
+apiVersion: psmdb.percona.com/v1
+kind: PerconaServerMongoDB
+metadata:
+  name: mongo-dev
+  namespace: dev
+spec:
+  crVersion: 1.22.0
+  backup:
+    enabled: true
+    image: percona/percona-backup-mongodb:2.12.0
+    pitr:
+      compressionLevel: 6
+      compressionType: gzip
+      enabled: true
+    tasks:
+    - name: nightly-physical-backup
+      enabled: true
+      schedule: "0 3 * * *"
+      keep: 7
+      storageName: minio
+      type: physical
+      compressionType: gzip
+      compressionLevel: 6
+    storages:
+      minio:
+        s3:
+          bucket: cryoem-logbook-mongodb-backup
+          credentialsSecret: mongo-backup-s3
+          endpointUrl: https://s3dfrgw.slac.stanford.edu
+          region: Default
+        type: s3
+  image: percona/percona-server-mongodb:8.0.19-7
+  replsets:
+  - affinity:
+      antiAffinityTopologyKey: kubernetes.io/hostname
+    configuration: |
+      storage:
+        wiredTiger:
+          engineConfig:
+            cacheSizeGB: 4
+          collectionConfig:
+            blockCompressor: snappy
+          indexConfig:
+            prefixCompression: true
+    livenessProbe:
+      failureThreshold: 100
+      initialDelaySeconds: 60
+      periodSeconds: 30
+      startupDelaySeconds: 7200
+      timeoutSeconds: 5
+    name: rs0
+    resources:
+      limits:
+        cpu: 4
+        memory: 16Gi
+      requests:
+        cpu: 2
+        memory: 8Gi
+    size: 3
+    volumeSpec:
+      persistentVolumeClaim:
+        resources:
+          requests:
+            storage: 100Gi
+  tls:
+    allowInvalidCertificates: true
+    mode: preferTLS
+  unsafeFlags:
+    tls: false
+  updateStrategy: SmartUpdate
