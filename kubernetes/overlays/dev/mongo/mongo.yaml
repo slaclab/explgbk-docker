@@ -2,31 +2,23 @@ apiVersion: psmdb.percona.com/v1
 kind: PerconaServerMongoDB
 metadata:
   name: mongo
-  namespace: cryoem-logbook
+  namespace: dev
 spec:
   crVersion: 1.22.0
-  #backup:
-  #  enabled: true
-  #  image: percona/percona-backup-mongodb:2.9.1
-  #  pitr:
-  #    compressionLevel: 6
-  #    compressionType: gzip
-  #    enabled: true
-  #  serviceAccountName: percona-server-mongodb-operator
-  #  storages:
-  #    minio:
-  #      s3:
-  #        bucket: cryoem-logbook-mongodb-backup
-  #        credentialsSecret: mongo-backup-s3-2mmtk52f47
-  #        endpointUrl: https://s3dfrgw.slac.stanford.edu
-  #        region: Default
-  #      type: s3
+  #image: percona/percona-server-mongodb:5.0.22-19
+  #image: percona/percona-server-mongodb:6.0.27-21
   #image: percona/percona-server-mongodb:7.0.30-16
   image: percona/percona-server-mongodb:8.0.19-7
-  pause: false
   replsets:
   - affinity:
       antiAffinityTopologyKey: kubernetes.io/hostname
+    name: rs0
+    size: 3
+    containerSecurityContext:
+      privileged: false
+      capabilities:
+        add:
+          - SYS_RESOURCE
     configuration: |
       storage:
         wiredTiger:
@@ -36,40 +28,27 @@ spec:
             blockCompressor: snappy
           indexConfig:
             prefixCompression: true
-    containerSecurityContext:
-      capabilities:
-        add:
-        - SYS_RESOURCE
-      privileged: false
-    livenessProbe:
-      failureThreshold: 10
-      initialDelaySeconds: 7200
-      periodSeconds: 360
-      startupDelaySeconds: 7200
-      timeoutSeconds: 10
-    name: rs0
-    readinessProbe:
-      failureThreshold: 10
-      initialDelaySeconds: 3
-      periodSeconds: 30
-      successThreshold: 1
-      timeoutSeconds: 5
+    livenessProbe: # when to kill/restart
+      failureThreshold: 10         # default 4 - how many failures before restart
+      initialDelaySeconds: 7200    # default 60 - wait before first probe
+      periodSeconds: 360           # default 30 - how often to probe
+      timeoutSeconds: 10           # default 5 - probe timeout
+      startupDelaySeconds: 7200    # default 7200 - startup grace period
+    readinessProbe:  #when to put into traffic
     resources:
       limits:
-        cpu: "16"
-        memory: 64Gi
-      requests:
         cpu: "8"
-        memory: 32Gi
-    size: 3
+        memory: "16Gi"
+      requests:
+        cpu: "4"
+        memory: "16Gi"
     volumeSpec:
       persistentVolumeClaim:
         resources:
           requests:
-            storage: 100Gi
-  secrets:
-    users: cryoem-logbook
+            storage: 320Gi
   sharding:
+    enabled: true
     configsvrReplSet:
       configuration: |
         storage:
@@ -104,7 +83,6 @@ spec:
           resources:
             requests:
               storage: 3Gi
-    enabled: true
     mongos:
       livenessProbe:
         failureThreshold: 6

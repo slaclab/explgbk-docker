@@ -1,0 +1,28 @@
+## Cross-cluster restore: restore from mongo2's backup to mongo2-restore cluster
+## Usage:
+##   1. Ensure mongo2-restore-cluster.yaml is deployed first
+##   2. Update backupSource.destination to the S3 path of the source backup
+##   3. Cross-cluster always uses LOGICAL restore regardless of source backup type
+##   4. kubectl apply -f mongo2-cross-cluster-restore.yaml
+##
+## For cross-cluster PITR:
+##   - Add pitr section (see commented example below)
+##   - Requires PITR oplog chunks to be accessible in S3
+apiVersion: psmdb.percona.com/v1
+kind: PerconaServerMongoDBRestore
+metadata:
+  name: restore-mongo2-cross-cluster
+  namespace: dev
+spec:
+  clusterName: mongo2-restore
+  backupSource:
+    destination: s3://cryoem-logbook-mongodb-backup/2026-04-29T03:24:13Z
+    s3:
+      bucket: cryoem-logbook-mongodb-backup
+      credentialsSecret: mongo-backup-s3
+      endpointUrl: https://s3dfrgw.slac.stanford.edu
+      region: Default
+  ## Uncomment for cross-cluster PITR:
+  # pitr:
+  #   type: date
+  #   date: "2026-04-29 03:26:00"

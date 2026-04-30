@@ -1,0 +1,10 @@
+namespace: dev
+
+resources:
+- mongo-dev.yaml
+- mongo.yaml
+
+secretGenerator:
+
+generatorOptions:
+  disableNameSuffixHash: true
