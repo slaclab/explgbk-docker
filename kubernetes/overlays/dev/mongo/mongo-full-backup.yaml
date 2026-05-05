@@ -1,9 +1,10 @@
 apiVersion: psmdb.percona.com/v1
 kind: PerconaServerMongoDBBackup
 metadata:
-  name: backup-cryoem-mongo-dev20260428
+  name: full-logical-backup-mongo-20260505
   namespace: dev
 spec:
-  clusterName: mongo-dev
+  clusterName: mongo
   storageName: minio
-  type: physical
+  #type: physical
+  type: logical
