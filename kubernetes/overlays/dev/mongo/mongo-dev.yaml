@@ -28,6 +28,7 @@ spec:
           credentialsSecret: mongo-backup-s3
           endpointUrl: https://s3dfrgw.slac.stanford.edu
           region: Default
+          prefix: cryoem/dev/mongo-dev-cluster
         type: s3
   image: percona/percona-server-mongodb:8.0.19-7
   replsets:
