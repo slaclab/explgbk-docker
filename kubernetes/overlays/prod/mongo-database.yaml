@@ -11,7 +11,7 @@ spec:
     pitr:
       compressionLevel: 6
       compressionType: gzip
-      enabled: false
+      enabled: true
       oplogSpanMin: 10
     tasks:
     - name: mongo-nightly-physical-backup
