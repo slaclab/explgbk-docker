@@ -5,6 +5,11 @@ metadata:
   namespace: dev
 spec:
   crVersion: 1.22.0
+  tls:
+    allowInvalidCertificates: true
+    mode: preferTLS
+  unsafeFlags:
+    tls: false
   image: percona/percona-server-mongodb:8.0.19-7
   backup:
     enabled: true

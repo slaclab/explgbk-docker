@@ -5,35 +5,41 @@ metadata:
   namespace: cryoem-logbook
 spec:
   crVersion: 1.22.0
-  backup:
-    enabled: true
-    image: percona/percona-backup-mongodb:2.12.0
-    pitr:
-      compressionLevel: 6
-      compressionType: gzip
-      enabled: true
-      oplogSpanMin: 10
-    tasks:
-    - name: mongo-nightly-physical-backup
-      enabled: true
-      schedule: "0 3 * * *"
-      keep: 7
-      storageName: minio
-      type: physical
-      compressionType: gzip
-      compressionLevel: 6
-    storages:
-      minio:
-        s3:
-          bucket: cryoem-logbook-mongodb-backup
-          credentialsSecret: mongo-backup-s3-2mmtk52f47
-          endpointUrl: https://s3dfrgw.slac.stanford.edu
-          region: Default
-          prefix: cryoem/prod/mongo-cluster
-        type: s3 
+  updateStrategy: SmartUpdate
+  #updateStrategy: RollingUpdate
+  tls:
+    mode: preferTLS
+    #mode: disabled
+  unsafeFlags:
+    tls: false
+  #backup:
+  #  enabled: true
+  #  image: percona/percona-backup-mongodb:2.12.0
+  #  pitr:
+  #    compressionLevel: 6
+  #    compressionType: gzip
+  #    enabled: true
+  #    oplogSpanMin: 10
+  #  tasks:
+  #  - name: mongo-nightly-physical-backup
+  #    enabled: true
+  #    schedule: "0 3 * * *"
+  #    keep: 7
+  #    storageName: minio
+  #    type: physical
+  #    compressionType: gzip
+  #    compressionLevel: 6
+  #  storages:
+  #    minio:
+  #      s3:
+  #        bucket: cryoem-logbook-mongodb-backup
+  #        credentialsSecret: mongo-backup-s3-2mmtk52f47
+  #        endpointUrl: https://s3dfrgw.slac.stanford.edu
+  #        region: Default
+  #        prefix: cryoem/prod/mongo-cluster
+  #      type: s3 
   #image: percona/percona-server-mongodb:7.0.30-16
   image: percona/percona-server-mongodb:8.0.19-7
-  pause: false
   replsets:
   - affinity:
       antiAffinityTopologyKey: kubernetes.io/hostname
@@ -134,7 +140,6 @@ spec:
           cpu: "1"
           memory: 2Gi
       size: 3
-  updateStrategy: SmartUpdate
   upgradeOptions:
     apply: disabled
     schedule: 0 2 * * *
