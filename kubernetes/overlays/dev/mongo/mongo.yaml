@@ -6,7 +6,6 @@ metadata:
 spec:
   crVersion: 1.22.0
   tls:
-    allowInvalidCertificates: true
     mode: preferTLS
   unsafeFlags:
     tls: false
@@ -14,18 +13,19 @@ spec:
   backup:
     enabled: true
     image: percona/percona-backup-mongodb:2.12.0
+    startingDeadlineSeconds: 43200
     pitr:
       compressionLevel: 6
       compressionType: gzip
       enabled: true
       oplogSpanMin: 10
     tasks:
-    - name: mongo-nightly-physical-backup
+    - name: mongo-nightly-logical-backup
       enabled: true
       schedule: "0 3 * * *"
       keep: 7
       storageName: minio
-      type: physical
+      type: logical
       compressionType: gzip
       compressionLevel: 6
     storages:
@@ -42,16 +42,43 @@ spec:
       antiAffinityTopologyKey: kubernetes.io/hostname
     name: rs0
     size: 3
+    shareProcessNamespace: true  # <-- enables sidecar to see mongod PID
+    sidecars:
+    - name: nofile-bumper
+      image: busybox:1.36          # any image with util-linux/prlimit
+      securityContext:
+        capabilities:
+          add: ["SYS_RESOURCE"]
+      command:
+      - /bin/sh
+      - -c
+      - |
+        # Wait for mongod to come up, then bump its rlimits.
+        # Re-run periodically in case mongod restarts (StatefulSet pod stays).
+        while true; do
+          PID=$(pidof mongod || true)
+          if [ -n "$PID" ]; then
+            prlimit --pid "$PID" --nofile=1048576:1048576 || true
+          fi
+          sleep 2
+        done
     containerSecurityContext:
       privileged: false
       capabilities:
         add:
           - SYS_RESOURCE
+    hookScript:
+      script: |
+        #!/bin/bash
+        # Raise nofile before mongod is exec'd. Requires CAP_SYS_RESOURCE (granted above).
+        ulimit -n 1048576 2>/dev/null || ulimit -n 524288 2>/dev/null || ulimit -n 262144 2>/dev/null || true
+        echo "[hookScript] nofile soft=$(ulimit -Sn) hard=$(ulimit -Hn)"
     configuration: |
       storage:
         wiredTiger:
           engineConfig:
             cacheSizeGB: 16
+            configString: "file_manager=(close_idle_time=600,close_scan_interval=60,close_handle_minimum=2000)"
           collectionConfig:
             blockCompressor: snappy
           indexConfig:
@@ -83,10 +110,36 @@ spec:
           wiredTiger:
             engineConfig:
               cacheSizeGB: 2
+              configString: "file_manager=(close_idle_time=600,close_scan_interval=60,close_handle_minimum=500)"
       containerSecurityContext:
         capabilities:
           add:
           - SYS_RESOURCE
+      shareProcessNamespace: true  # <-- enables sidecar to see mongod PID
+      sidecars:
+      - name: nofile-bumper
+        image: busybox:1.36          # any image with util-linux/prlimit
+        securityContext:
+          capabilities:
+            add: ["SYS_RESOURCE"]
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Wait for mongod to come up, then bump its rlimits.
+          # Re-run periodically in case mongod restarts (StatefulSet pod stays).
+          while true; do
+            PID=$(pidof mongod || true)
+            if [ -n "$PID" ]; then
+              prlimit --pid "$PID" --nofile=1048576:1048576 || true
+            fi
+            sleep 2
+          done
+      hookScript:
+        script: |
+          #!/bin/bash
+          ulimit -n 1048576 2>/dev/null || ulimit -n 524288 2>/dev/null || ulimit -n 262144 2>/dev/null || true
+          echo "[hookScript] nofile soft=$(ulimit -Sn) hard=$(ulimit -Hn)"
       livenessProbe:
         failureThreshold: 10
         initialDelaySeconds: 120
@@ -112,6 +165,35 @@ spec:
             requests:
               storage: 3Gi
     mongos:
+      containerSecurityContext:
+        capabilities:
+          add:
+          - SYS_RESOURCE
+      shareProcessNamespace: true  # <-- enables sidecar to see mongod PID
+      sidecars:
+      - name: nofile-bumper
+        image: busybox:1.36          # any image with util-linux/prlimit
+        securityContext:
+          capabilities:
+            add: ["SYS_RESOURCE"]
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Wait for mongod to come up, then bump its rlimits.
+          # Re-run periodically in case mongod restarts (StatefulSet pod stays).
+          while true; do
+            PID=$(pidof mongod || true)
+            if [ -n "$PID" ]; then
+              prlimit --pid "$PID" --nofile=1048576:1048576 || true
+            fi
+            sleep 2
+          done
+      hookScript:
+        script: |
+          #!/bin/bash
+          ulimit -n 1048576 2>/dev/null || ulimit -n 524288 2>/dev/null || ulimit -n 262144 2>/dev/null || true
+          echo "[hookScript] nofile soft=$(ulimit -Sn) hard=$(ulimit -Hn)"
       livenessProbe:
         failureThreshold: 6
         initialDelaySeconds: 60
