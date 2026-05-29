@@ -42,26 +42,6 @@ spec:
       antiAffinityTopologyKey: kubernetes.io/hostname
     name: rs0
     size: 3
-    shareProcessNamespace: true  # <-- enables sidecar to see mongod PID
-    sidecars:
-    - name: nofile-bumper
-      image: busybox:1.36          # any image with util-linux/prlimit
-      securityContext:
-        capabilities:
-          add: ["SYS_RESOURCE"]
-      command:
-      - /bin/sh
-      - -c
-      - |
-        # Wait for mongod to come up, then bump its rlimits.
-        # Re-run periodically in case mongod restarts (StatefulSet pod stays).
-        while true; do
-          PID=$(pidof mongod || true)
-          if [ -n "$PID" ]; then
-            prlimit --pid "$PID" --nofile=1048576:1048576 || true
-          fi
-          sleep 2
-        done
     containerSecurityContext:
       privileged: false
       capabilities:
@@ -115,26 +95,6 @@ spec:
         capabilities:
           add:
           - SYS_RESOURCE
-      shareProcessNamespace: true  # <-- enables sidecar to see mongod PID
-      sidecars:
-      - name: nofile-bumper
-        image: busybox:1.36          # any image with util-linux/prlimit
-        securityContext:
-          capabilities:
-            add: ["SYS_RESOURCE"]
-        command:
-        - /bin/sh
-        - -c
-        - |
-          # Wait for mongod to come up, then bump its rlimits.
-          # Re-run periodically in case mongod restarts (StatefulSet pod stays).
-          while true; do
-            PID=$(pidof mongod || true)
-            if [ -n "$PID" ]; then
-              prlimit --pid "$PID" --nofile=1048576:1048576 || true
-            fi
-            sleep 2
-          done
       hookScript:
         script: |
           #!/bin/bash
@@ -169,26 +129,6 @@ spec:
         capabilities:
           add:
           - SYS_RESOURCE
-      shareProcessNamespace: true  # <-- enables sidecar to see mongod PID
-      sidecars:
-      - name: nofile-bumper
-        image: busybox:1.36          # any image with util-linux/prlimit
-        securityContext:
-          capabilities:
-            add: ["SYS_RESOURCE"]
-        command:
-        - /bin/sh
-        - -c
-        - |
-          # Wait for mongod to come up, then bump its rlimits.
-          # Re-run periodically in case mongod restarts (StatefulSet pod stays).
-          while true; do
-            PID=$(pidof mongod || true)
-            if [ -n "$PID" ]; then
-              prlimit --pid "$PID" --nofile=1048576:1048576 || true
-            fi
-            sleep 2
-          done
       hookScript:
         script: |
           #!/bin/bash
