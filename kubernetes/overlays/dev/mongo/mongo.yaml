@@ -10,49 +10,12 @@ spec:
   unsafeFlags:
     tls: false
   image: percona/percona-server-mongodb:8.0.19-7
-  backup:
-    enabled: true
-    image: percona/percona-backup-mongodb:2.12.0
-    startingDeadlineSeconds: 43200
-    pitr:
-      compressionLevel: 6
-      compressionType: gzip
-      enabled: true
-      oplogSpanMin: 10
-    tasks:
-    - name: mongo-nightly-logical-backup
-      enabled: true
-      schedule: "0 3 * * *"
-      keep: 7
-      storageName: minio
-      type: logical
-      compressionType: gzip
-      compressionLevel: 6
-    storages:
-      minio:
-        s3:
-          bucket: cryoem-logbook-mongodb-backup
-          credentialsSecret: mongo-backup-s3
-          endpointUrl: https://s3dfrgw.slac.stanford.edu
-          region: Default
-          prefix: cryoem/dev/mongo-cluster
-        type: s3
+  imagePullPolicy: Always
   replsets:
   - affinity:
       antiAffinityTopologyKey: kubernetes.io/hostname
     name: rs0
     size: 3
-    containerSecurityContext:
-      privileged: false
-      capabilities:
-        add:
-          - SYS_RESOURCE
-    hookScript:
-      script: |
-        #!/bin/bash
-        # Raise nofile before mongod is exec'd. Requires CAP_SYS_RESOURCE (granted above).
-        ulimit -n 1048576 2>/dev/null || ulimit -n 524288 2>/dev/null || ulimit -n 262144 2>/dev/null || true
-        echo "[hookScript] nofile soft=$(ulimit -Sn) hard=$(ulimit -Hn)"
     configuration: |
       storage:
         wiredTiger:
@@ -63,6 +26,10 @@ spec:
             blockCompressor: snappy
           indexConfig:
             prefixCompression: true
+    containerSecurityContext:
+      capabilities:
+        add:
+        - SYS_RESOURCE
     livenessProbe: # when to kill/restart
       failureThreshold: 10         # default 4 - how many failures before restart
       initialDelaySeconds: 7200    # default 60 - wait before first probe
@@ -91,15 +58,6 @@ spec:
             engineConfig:
               cacheSizeGB: 2
               configString: "file_manager=(close_idle_time=600,close_scan_interval=60,close_handle_minimum=500)"
-      containerSecurityContext:
-        capabilities:
-          add:
-          - SYS_RESOURCE
-      hookScript:
-        script: |
-          #!/bin/bash
-          ulimit -n 1048576 2>/dev/null || ulimit -n 524288 2>/dev/null || ulimit -n 262144 2>/dev/null || true
-          echo "[hookScript] nofile soft=$(ulimit -Sn) hard=$(ulimit -Hn)"
       livenessProbe:
         failureThreshold: 10
         initialDelaySeconds: 120
@@ -125,15 +83,6 @@ spec:
             requests:
               storage: 3Gi
     mongos:
-      containerSecurityContext:
-        capabilities:
-          add:
-          - SYS_RESOURCE
-      hookScript:
-        script: |
-          #!/bin/bash
-          ulimit -n 1048576 2>/dev/null || ulimit -n 524288 2>/dev/null || ulimit -n 262144 2>/dev/null || true
-          echo "[hookScript] nofile soft=$(ulimit -Sn) hard=$(ulimit -Hn)"
       livenessProbe:
         failureThreshold: 6
         initialDelaySeconds: 60
