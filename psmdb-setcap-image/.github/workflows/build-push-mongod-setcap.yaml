@@ -1,0 +1,50 @@
+name: Build and publish mongod-setcap image to GHCR
+
+on:
+  workflow_dispatch:
+    inputs:
+      mongoVersion:
+        description: "Percona Server MongoDB version (e.g. 8.0.19-7)"
+        required: true
+        default: "8.0.19-7"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: slaclab/percona-server-mongodb-setcap
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.mongoVersion }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            MONGO_VERSION=${{ github.event.inputs.mongoVersion }}
