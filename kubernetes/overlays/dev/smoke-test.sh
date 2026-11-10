@@ -58,6 +58,8 @@ for p in defs.get("params", []):
         v = 0
     elif p.get("options"):
         v = p["options"][0]
+        if isinstance(v, dict):
+            v = v.get("value", v.get("label"))
     elif t == "bool":
         v = False
     else:
