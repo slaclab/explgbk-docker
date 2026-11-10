@@ -1,0 +1,14 @@
+# PVC that exists on live without any workload (created 2025-06-02), as last applied.
+# It matches the PVC in the unreferenced mongo-restore-deployment.yaml. The `restore`
+# Deployment from that file is not on live, so only the PVC is reproduced here.
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-restore
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi

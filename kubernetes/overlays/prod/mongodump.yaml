@@ -8,8 +8,9 @@ metadata:
   name: mongo-restore-logic
 spec:
   storageClassName: wekafs--sdf-k8s01
+  # Live is ReadWriteOnce (access modes can't be changed on an existing PVC).
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 1000Gi

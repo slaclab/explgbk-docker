@@ -1,6 +1,18 @@
 # Toolbox Deployment holding the mongo-backup PVC (older dumps, 2026-03).
 # Reproduced from the live Deployment's last-applied configuration on 2026-11-10.
-# Its PVC (mongo-backup) exists on live but is not in this repo yet.
+---
+# PVC as last applied on live (created 2026-03-19). No storageClassName was set;
+# the cluster default (wekafs--sdf-k8s01) was used.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-backup
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 300Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
