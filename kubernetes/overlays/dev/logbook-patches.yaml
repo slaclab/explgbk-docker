@@ -22,3 +22,10 @@ spec:
             value: 'mongodb://mongo-rs0-0.mongo-rs0:27017,mongo-rs0-1.mongo-rs0:27017,mongo-rs0-2.mongo-rs0:27017/?replicaSet=rs0'
           - name: KAFKA_BOOTSTRAP_SERVER
             value: kafka-kafka-bootstrap:9092
+          # The app connects with MONGODB_USERNAME/PASSWORD (writer) only; ROLES_DATABASE_*
+          # is read nowhere outside runscripts/rundev.sh. Drop the reader credentials on dev
+          # so no unused Mongo password has to live in Vault.
+          - name: ROLES_DATABASE_USER
+            $patch: delete
+          - name: ROLES_DATABASE_PASSWORD
+            $patch: delete

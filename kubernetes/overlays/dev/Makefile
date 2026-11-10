@@ -8,7 +8,7 @@ ensure-context:
 
 get-secrets-from-vault:
 	mkdir -p etc/.secrets/
-	set -e; for i in cert.crt cert.key intermediates.cer keytab_webauth.encoded backend.htpasswd explgbk-writer.username explgbk-writer.password explgbk-reader.username explgbk-reader.password; do vault kv get --field=$$i $(SECRET_PATH) > etc/.secrets/$$i ; done
+	set -e; for i in cert.crt cert.key intermediates.cer keytab_webauth.encoded backend.htpasswd explgbk-writer.username explgbk-writer.password; do vault kv get --field=$$i $(SECRET_PATH) > etc/.secrets/$$i ; done
 	cat etc/.secrets/keytab_webauth.encoded | base64 -d > etc/.secrets/keytab_webauth
 
 clean-secrets:

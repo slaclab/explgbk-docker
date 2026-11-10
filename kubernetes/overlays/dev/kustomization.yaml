@@ -24,10 +24,6 @@ secretGenerator:
   files:
   - username=./etc/.secrets/explgbk-writer.username
   - password=./etc/.secrets/explgbk-writer.password
-- name: explgbk-reader
-  files:
-  - username=./etc/.secrets/explgbk-reader.username
-  - password=./etc/.secrets/explgbk-reader.password
 - name: auth-secrets
   files:
   - ./etc/.secrets/cert.crt
