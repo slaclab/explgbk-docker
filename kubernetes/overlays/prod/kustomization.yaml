@@ -13,6 +13,7 @@ resources:
 - ingress.yaml
 - cryoem-storage.yaml
 - mongodump.yaml
+- backup-deployment.yaml
 
 patchesStrategicMerge:
 - auth-patches.yaml
@@ -45,12 +46,7 @@ secretGenerator:
   files:
   - password=./etc/.secrets/collab-listener.password
 
-configMapGenerator:
-- name: mongodump-script
-  files:
-  - mongodump-by-db.sh
-  options:
-    disableNameSuffixHash: true
+# mongodump-script (for the CronJob in mongodump-cronjob.yaml) is not on live prod; see that file.
 
 # Tags match what is running in prod (sdf-k8s01, vcluster cryoem, ns cryoem-logbook) as of 2026-11-06.
 images:
