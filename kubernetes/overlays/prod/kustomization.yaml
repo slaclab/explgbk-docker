@@ -50,9 +50,11 @@ configMapGenerator:
   options:
     disableNameSuffixHash: true
 
+# Tags match what is running in prod (sdf-k8s01, vcluster cryoem, ns cryoem-logbook) as of 2026-11-06.
 images:
 - name: slaclab/explgbk-docker
-#  newTag: '20201210.0'
-  newTag: '20220121.0'
+  newTag: '20240112.0.0'
+- name: slaclab/explgbk-auth
+  newTag: '20260901.3'
 - name: slaclab/explgbk-collab-listener
   newTag: '20201019.1'

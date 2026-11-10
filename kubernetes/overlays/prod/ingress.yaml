@@ -9,6 +9,7 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/backend-protocol: HTTPS
 spec:
+  ingressClassName: nginx
   rules:
     - host: cryoem-logbook.slac.stanford.edu
       http:

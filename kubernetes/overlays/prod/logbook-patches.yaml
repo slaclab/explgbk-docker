@@ -4,7 +4,8 @@ kind: Deployment
 metadata:
   name: explgbk
 spec:
-  replicas: 3
+  # prod has run a single replica since it was scaled down by hand (last-applied said 3)
+  replicas: 1
   template:
     spec:
       containers:

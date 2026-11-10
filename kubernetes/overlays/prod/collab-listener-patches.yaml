@@ -13,6 +13,9 @@ spec:
       labels:
         app: collab-listener
     spec:
+      # the exp-data PVC is DDN-backed; only DDN-mounted nodes can attach it
+      nodeSelector:
+        edu.stanford.slac.sdf.storage/ddn-sdf: 'true'
       securityContext:
         runAsUser: 15693
         runAsGroup: 3591
