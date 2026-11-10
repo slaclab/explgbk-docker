@@ -9,6 +9,7 @@ resources:
 - ns.yaml
 - mongo-database.yaml
 - kafka-messagebus.yaml
+- kafka-metrics.yaml
 - ingress.yaml
 - cryoem-storage.yaml
 - mongodump.yaml
