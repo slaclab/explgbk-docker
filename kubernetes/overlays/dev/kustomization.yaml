@@ -1,49 +1,45 @@
-namespace: cryoem-logbook-dev
+# Dev logbook: the prod stack (explgbk + Apache/WebAuth auth front end) on the
+# cryoem-logbook-dev vcluster, namespace dev, as a staging copy of prod.
+#
+# - App image: the prod reproduction built by .github/workflows/docker_publish.yml.
+# - Data layer: reuses dev's existing Percona MongoDB (mongo/, applied separately)
+#   and Strimzi Kafka. Nothing here creates or changes Mongo, Kafka or operators.
+# - collab-listener is left out: it runs setfacl on real experiment directories
+#   and talks to the prod logbook.
+#
+# Apply with `make apply` (pulls secrets from Vault, refuses any other kube context).
 
-bases:
-- ../../base/
+namespace: dev
 
 resources:
-- ns.yaml
-- database-storage.yaml
+- ../../base/
 - ingress.yaml
-- cryoem-storage.yaml
-- message_bus-storage.yaml
 
-patchesStrategicMerge:
-- storage-patches.yaml
-- logbook-patches.yaml
-#- nodeSelector-patches.yaml
-- message_bus-patches.yaml
-#- collab-listener-patches.yaml
-- rbac.yaml
-- database-patches.yaml
+patches:
+- path: logbook-patches.yaml
+- path: collab-listener-delete.yaml
 
 secretGenerator:
-- name: mongodb
-  literals:
-  - username=admin
-  - password=somepassword
 - name: explgbk-writer
-  literals:
-  - username=writer
-  - password=somepassword
+  files:
+  - username=./etc/.secrets/explgbk-writer.username
+  - password=./etc/.secrets/explgbk-writer.password
 - name: explgbk-reader
-  literals:
-  - username=reader
-  - password=somepassword
+  files:
+  - username=./etc/.secrets/explgbk-reader.username
+  - password=./etc/.secrets/explgbk-reader.password
 - name: auth-secrets
   files:
-  - ./cert.crt
-  - ./intermediates.cer
-  - ./cert.key
-  - ./keytab_webauth
-  - ./backend.htpasswd
+  - ./etc/.secrets/cert.crt
+  - ./etc/.secrets/intermediates.cer
+  - ./etc/.secrets/cert.key
+  - ./etc/.secrets/keytab_webauth
+  - ./etc/.secrets/backend.htpasswd
 
 images:
 - name: slaclab/explgbk-docker
-  #newTag: "20220121.0"
-  newTag: "20220215.0"
-- name: slaclab/explgbk-collab-listener
-  newTag: '20201019.1'
-
+  newName: ghcr.io/slaclab/explgbk-docker
+  newTag: '20261110-1826'
+# Same auth image as prod (built outside this repo).
+- name: slaclab/explgbk-auth
+  newTag: '20260901.3'

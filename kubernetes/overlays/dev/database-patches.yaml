@@ -1,8 +1,0 @@
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: mongo
-spec:
-  updateStrategy:
-    type: RollingUpdate
-  replicas: 1
