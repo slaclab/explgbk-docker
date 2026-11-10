@@ -1,7 +1,8 @@
 namespace: cryoem-logbook
 
+# Operators are not part of this overlay. The Percona operator is installed from
+# kubernetes/prod-operators/mongo (psmdb-operator namespace) and applied separately.
 bases:
-- ../../operators/
 - ../../base/
 
 resources:
