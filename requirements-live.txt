@@ -21,7 +21,7 @@ kafka-python==1.4.6
 MarkupSafe==1.0
 monotonic==1.6
 pycparser==2.18
-pymongo==3.11.0
+pymongo==4.18.3
 PyMySQL==0.7.9
 pyOpenSSL==17.2.0
 PySocks==1.6.7
