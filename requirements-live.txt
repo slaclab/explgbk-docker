@@ -32,6 +32,6 @@ pytz==2020.1
 requests==2.18.4
 six==1.11.0
 urllib3==1.22
-Werkzeug==1.0.1
+Werkzeug==3.1.9
 git+https://github.com/slaclab/flask_authnz.git@3e932e3f9ceb6f26374657cd583e102b59aae99d
 git+https://github.com/slaclab/flask_socket_util.git@6deba6380d5864490169e7013b2d8d81df55c936
