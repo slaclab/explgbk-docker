@@ -1,0 +1,53 @@
+# Toolbox Deployment holding the mongo-backup PVC (older dumps, 2026-03).
+# Reproduced from the live Deployment's last-applied configuration on 2026-11-10.
+---
+# PVC as last applied on live (created 2026-03-19). No storageClassName was set;
+# the cluster default (wekafs--sdf-k8s01) was used.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-backup
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 300Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backup
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-backup
+  template:
+    metadata:
+      labels:
+        app: mongo-backup
+    spec:
+      containers:
+      - command:
+        - bash
+        - -c
+        - sleep infinity
+        image: mongo:5.0.32-focal
+        name: mongo-restore
+        volumeMounts:
+        - mountPath: /data
+          name: mongo-backup
+      - command:
+        - bash
+        - -c
+        - sleep infinity
+        image: kroniak/ssh-client
+        name: scp
+        volumeMounts:
+        - mountPath: /data
+          name: mongo-backup
+      volumes:
+      - name: mongo-backup
+        persistentVolumeClaim:
+          claimName: mongo-backup

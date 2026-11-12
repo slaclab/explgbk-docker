@@ -1,16 +1,20 @@
 namespace: cryoem-logbook
 
+# Operators are not part of this overlay. The Percona operator is installed from
+# kubernetes/prod-operators/mongo (psmdb-operator namespace) and applied separately.
 bases:
-- ../../operators/
 - ../../base/
 
 resources:
 - ns.yaml
 - mongo-database.yaml
 - kafka-messagebus.yaml
+- kafka-metrics.yaml
 - ingress.yaml
 - cryoem-storage.yaml
 - mongodump.yaml
+- backup-deployment.yaml
+- mongo-restore-pvc.yaml
 
 patchesStrategicMerge:
 - auth-patches.yaml
@@ -43,16 +47,13 @@ secretGenerator:
   files:
   - password=./etc/.secrets/collab-listener.password
 
-configMapGenerator:
-- name: mongodump-script
-  files:
-  - mongodump-by-db.sh
-  options:
-    disableNameSuffixHash: true
+# mongodump-script (for the CronJob in mongodump-cronjob.yaml) is not on live prod; see that file.
 
+# Tags match what is running in prod (sdf-k8s01, vcluster cryoem, ns cryoem-logbook) as of 2026-11-06.
 images:
 - name: slaclab/explgbk-docker
-#  newTag: '20201210.0'
-  newTag: '20220121.0'
+  newTag: '20240112.0.0'
+- name: slaclab/explgbk-auth
+  newTag: '20260901.3'
 - name: slaclab/explgbk-collab-listener
   newTag: '20201019.1'
