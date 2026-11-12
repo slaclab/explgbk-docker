@@ -23,7 +23,7 @@ patchesStrategicMerge:
 - collab-listener-patches.yaml
 
 # Secrets come from Vault through External Secrets Operator (externalsecrets.yaml),
-# with fixed names: auth-secrets, collab-listener, explgbk-writer, explgbk-reader.
+# with fixed names: auth-secrets, collab-listener, explgbk-writer.
 
 # mongodump-script (for the CronJob in mongodump-cronjob.yaml) is not on live prod; see that file.
 

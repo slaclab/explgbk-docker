@@ -23,3 +23,8 @@ spec:
           - name: KAFKA_BOOTSTRAP_SERVER
             value: kafka-kafka-bootstrap:9092
 
+          # explgbk connects with MONGODB_USERNAME/PASSWORD only
+          - name: ROLES_DATABASE_USER
+            $patch: delete
+          - name: ROLES_DATABASE_PASSWORD
+            $patch: delete
