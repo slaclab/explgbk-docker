@@ -1,49 +1,32 @@
-namespace: cryoem-logbook-dev
+# Dev logbook: the prod stack (explgbk + Apache/WebAuth auth front end) on the
+# cryoem-logbook-dev vcluster, namespace dev, as a staging copy of prod.
+#
+# - App image: the prod reproduction built by .github/workflows/docker_publish.yml.
+# - Data layer: reuses dev's existing Percona MongoDB (mongo/, applied separately)
+#   and Strimzi Kafka. Nothing here creates or changes Mongo, Kafka or operators.
+# - collab-listener is left out: it runs setfacl on real experiment directories
+#   and talks to the prod logbook.
+#
+# Apply with `make apply` (refuses any other kube context).
 
-bases:
-- ../../base/
+namespace: dev
 
 resources:
-- ns.yaml
-- database-storage.yaml
+- ../../base/
 - ingress.yaml
-- cryoem-storage.yaml
-- message_bus-storage.yaml
+- externalsecrets.yaml
 
-patchesStrategicMerge:
-- storage-patches.yaml
-- logbook-patches.yaml
-#- nodeSelector-patches.yaml
-- message_bus-patches.yaml
-#- collab-listener-patches.yaml
-- rbac.yaml
-- database-patches.yaml
+patches:
+- path: logbook-patches.yaml
+- path: collab-listener-delete.yaml
 
-secretGenerator:
-- name: mongodb
-  literals:
-  - username=admin
-  - password=somepassword
-- name: explgbk-writer
-  literals:
-  - username=writer
-  - password=somepassword
-- name: explgbk-reader
-  literals:
-  - username=reader
-  - password=somepassword
-- name: auth-secrets
-  files:
-  - ./cert.crt
-  - ./intermediates.cer
-  - ./cert.key
-  - ./keytab_webauth
-  - ./backend.htpasswd
+# Secrets come from Vault through External Secrets Operator (externalsecrets.yaml),
+# with fixed names: auth-secrets, explgbk-writer.
 
 images:
 - name: slaclab/explgbk-docker
-  #newTag: "20220121.0"
-  newTag: "20220215.0"
-- name: slaclab/explgbk-collab-listener
-  newTag: '20201019.1'
-
+  newName: ghcr.io/slaclab/explgbk-docker
+  newTag: '20261110-1826'
+# Same auth image as prod (built outside this repo).
+- name: slaclab/explgbk-auth
+  newTag: '20260901.3'

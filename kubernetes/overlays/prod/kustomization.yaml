@@ -15,37 +15,15 @@ resources:
 - mongodump.yaml
 - backup-deployment.yaml
 - mongo-restore-pvc.yaml
+- externalsecrets.yaml
 
 patchesStrategicMerge:
 - auth-patches.yaml
 - logbook-patches.yaml
 - collab-listener-patches.yaml
 
-secretGenerator:
-- name: mongodb
-  literals:
-  - username=admin
-  - password=somepassword
-- name: explgbk-writer
-  literals:
-  - username=writer
-  - password=somepassword
-- name: explgbk-reader
-  literals:
-  - username=reader
-  - password=somepassword
-- name: auth-secrets
-  files:
-  - ./etc/.secrets/cert.crt
-  - ./etc/.secrets/intermediates.cer
-  - ./etc/.secrets/cert.key
-  - ./etc/.secrets/keytab_webauth
-  - ./etc/.secrets/backend.htpasswd
-- name: collab-listener
-  literals:
-  - username=cryo-daq
-  files:
-  - password=./etc/.secrets/collab-listener.password
+# Secrets come from Vault through External Secrets Operator (externalsecrets.yaml),
+# with fixed names: auth-secrets, collab-listener, explgbk-writer, explgbk-reader.
 
 # mongodump-script (for the CronJob in mongodump-cronjob.yaml) is not on live prod; see that file.
 

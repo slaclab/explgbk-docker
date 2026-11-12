@@ -1,0 +1,7 @@
+# collab-listener runs setfacl on experiment directories and calls the prod
+# logbook (LOGBOOK_URI); keep it out of dev.
+$patch: delete
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collab-listener

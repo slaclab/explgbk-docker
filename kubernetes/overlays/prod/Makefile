@@ -1,18 +1,22 @@
-SECRET_PATH ?= secret/cryoem/cryoem-logbook
+KUBECTL_DEPLOY_CONTEXT ?= 'cryoem'
 
-get-secrets-from-vault:
-	mkdir -p etc/.secrets/
-	set -e; for i in MONGODB_BACKUP_PASSWORD  MONGODB_CLUSTER_ADMIN_PASSWORD  MONGODB_CLUSTER_MONITOR_PASSWORD  MONGODB_USER_ADMIN_PASSWORD	PMM_SERVER_PASSWORD  S3_ACCESS_KEY  S3_SECRET_KEY cert.crt cert.key intermediates.cer keytab_webauth.encoded backend.htpasswd collab-listener.password; do vault kv get --field=$$i $(SECRET_PATH) > etc/.secrets/$$i ; done
-	cat etc/.secrets/keytab_webauth.encoded | base64 -d > etc/.secrets/keytab_webauth
-	
+# Secrets are ExternalSecrets (externalsecrets.yaml) synced from Vault by ESO;
+# nothing here reads Vault.
 
-clean-secrets:
-	rm -rf etc/.secrets/
+all: apply
+
+ensure-context:
+	if [ '$(shell kubectl config current-context)' != $(KUBECTL_DEPLOY_CONTEXT) ]; then echo "Configured deployment context incorrect; expecting $(KUBECTL_DEPLOY_CONTEXT)."; exit 1; fi
 
 run-apply:
 	kubectl apply -k .
 
-dump:
-	kubectl kustomize  . | yh
+run-diff:
+	kubectl diff -k .; rc=$$?; if [ $$rc -eq 1 ]; then exit 0; elif [ $$rc -gt 1 ]; then exit $$rc; fi
 
-apply: get-secrets-from-vault run-apply clean-secrets
+apply: ensure-context run-apply
+
+diff: ensure-context run-diff
+
+dump:
+	kubectl kustomize .
